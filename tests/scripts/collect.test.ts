@@ -22,23 +22,109 @@ const TSX_PATH = resolve("node_modules/.bin/tsx");
 const expectedCommunities = {
   "mingquan-huayuan": {
     referenceUnitPrice: 23007,
-    weeklyPoints: [{ label: "3月", priceYuanPerSqm: 23006 }],
+    listingCount: 90,
+    recentDealHints: [
+      "西青热搜小区榜第60名",
+      "关注量超过同城98%的楼盘",
+      "二手房历史成交(177)",
+    ],
+    firstListing: {
+      title: "富力津门湖鸣泉花园 2室1厅!可议价!",
+      roomCount: 2,
+      areaSqm: 88.42,
+      totalPriceWan: 199,
+      unitPriceYuanPerSqm: 22506,
+    },
+    pricePoints: [{ label: "3月", priceYuanPerSqm: 23006 }],
+    districtName: "西青",
+    districtPremiumPct: 7.72,
+    momChangePct: 0.99,
+    yoyChangePct: -10.72,
   },
   "jiajun-huayuan": {
     referenceUnitPrice: 22234,
-    weeklyPoints: [{ label: "3月", priceYuanPerSqm: 22233 }],
+    listingCount: 144,
+    recentDealHints: [
+      "西青人气小区榜第66名",
+      "关注量超过同城98%的楼盘",
+      "二手房历史成交(193)",
+    ],
+    firstListing: {
+      title: "西青 富力津门湖嘉郡花园 5室3厅 280.00㎡ 580万",
+      roomCount: 5,
+      areaSqm: 280,
+      totalPriceWan: 580,
+      unitPriceYuanPerSqm: 20714,
+    },
+    pricePoints: [{ label: "3月", priceYuanPerSqm: 22233 }],
+    districtName: "西青",
+    districtPremiumPct: 8.69,
+    momChangePct: -0.53,
+    yoyChangePct: -6.83,
   },
   "yunshu-huayuan": {
     referenceUnitPrice: 23403,
-    weeklyPoints: [{ label: "3月", priceYuanPerSqm: 23402 }],
+    listingCount: 104,
+    recentDealHints: [
+      "西青人气小区榜第63名",
+      "关注量超过同城98%的楼盘",
+      "二手房历史成交(234)",
+      "法拍房历史成交(1)",
+    ],
+    firstListing: {
+      title: "富力津门湖云舒花园2室2厅1卫南朝向173.00万出售",
+      roomCount: 2,
+      areaSqm: 89,
+      totalPriceWan: 173,
+      unitPriceYuanPerSqm: 19438,
+    },
+    pricePoints: [{ label: "3月", priceYuanPerSqm: 23402 }],
+    districtName: "西青",
+    districtPremiumPct: 7.24,
+    momChangePct: 2.69,
+    yoyChangePct: -4.49,
   },
   "boxi-huayuan": {
     referenceUnitPrice: 25302,
-    weeklyPoints: [{ label: "3月", priceYuanPerSqm: 25301 }],
+    listingCount: 58,
+    recentDealHints: [
+      "西青热搜小区榜第37名",
+      "关注量超过同城98%的楼盘",
+      "二手房历史成交(122)",
+    ],
+    firstListing: {
+      title: "采光棒能观湖新装修3个月拎包入住给孩子换房出售",
+      roomCount: 3,
+      areaSqm: 160.08,
+      totalPriceWan: 418,
+      unitPriceYuanPerSqm: 26112,
+    },
+    pricePoints: [{ label: "3月", priceYuanPerSqm: 25301 }],
+    districtName: "西青",
+    districtPremiumPct: 5.91,
+    momChangePct: 1.05,
+    yoyChangePct: -7.32,
   },
   "haiyi-changzhou-hanboyuan": {
     referenceUnitPrice: 28064,
-    weeklyPoints: [{ label: "3月", priceYuanPerSqm: 28064 }],
+    listingCount: 70,
+    recentDealHints: [
+      "西青热搜小区榜第85名",
+      "关注量超过同城98%的楼盘",
+      "二手房历史成交(210)",
+    ],
+    firstListing: {
+      title: "河西精装海逸长洲瀚波园 2室1厅",
+      roomCount: 2,
+      areaSqm: 89.14,
+      totalPriceWan: 198,
+      unitPriceYuanPerSqm: 22212,
+    },
+    pricePoints: [{ label: "3月", priceYuanPerSqm: 28064 }],
+    districtName: "西青",
+    districtPremiumPct: 4.1,
+    momChangePct: -1.4,
+    yoyChangePct: -11.19,
   },
 } as const;
 
@@ -123,6 +209,8 @@ describe("scripts/collect.ts", () => {
         status: "success",
         latestMonth: "2026-02",
         city: "天津",
+        secondaryHomePriceIndexMom: 99.5,
+        secondaryHomePriceIndexYoy: 94,
       },
     });
 
@@ -137,10 +225,21 @@ describe("scripts/collect.ts", () => {
         fangCommunity: {
           status: "success",
           referenceUnitPrice: expected.referenceUnitPrice,
+          listingCount: expected.listingCount,
+          recentDealHints: expected.recentDealHints,
+          currentListingTeasers: expect.arrayContaining([
+            expect.objectContaining(expected.firstListing),
+          ]),
         },
         fangWeekreport: {
           status: "success",
-          weeklyPoints: expected.weeklyPoints,
+          pricePoints: expected.pricePoints,
+          listingCount: null,
+          districtName: expected.districtName,
+          districtPremiumPct: expected.districtPremiumPct,
+          momChangePct: expected.momChangePct,
+          yoyChangePct: expected.yoyChangePct,
+          availableRangeLabels: ["近6月", "近1年", "近3年"],
         },
       });
     }
@@ -175,10 +274,25 @@ describe("scripts/collect.ts", () => {
           fangCommunity: {
             status: string;
             referenceUnitPrice?: number;
+            listingCount?: number;
+            recentDealHints?: string[];
+            currentListingTeasers?: Array<{
+              title: string | null;
+              roomCount: number | null;
+              areaSqm: number | null;
+              totalPriceWan: number | null;
+              unitPriceYuanPerSqm: number | null;
+            }>;
           };
           fangWeekreport: {
             status: string;
-            weeklyPoints?: Array<{ label: string; priceYuanPerSqm: number | null }>;
+            pricePoints?: Array<{ label: string; priceYuanPerSqm: number | null }>;
+            listingCount?: number | null;
+            districtName?: string | null;
+            districtPremiumPct?: number | null;
+            momChangePct?: number | null;
+            yoyChangePct?: number | null;
+            availableRangeLabels?: string[];
           };
         }
       >;
@@ -189,10 +303,31 @@ describe("scripts/collect.ts", () => {
       fangCommunity: {
         status: "failed",
         referenceUnitPrice: 23007,
+        listingCount: 90,
+        recentDealHints: [
+          "西青热搜小区榜第60名",
+          "关注量超过同城98%的楼盘",
+          "二手房历史成交(177)",
+        ],
+        currentListingTeasers: expect.arrayContaining([
+          expect.objectContaining({
+            title: "富力津门湖鸣泉花园 2室1厅!可议价!",
+            roomCount: 2,
+            areaSqm: 88.42,
+            totalPriceWan: 199,
+            unitPriceYuanPerSqm: 22506,
+          }),
+        ]),
       },
       fangWeekreport: {
         status: "success",
-        weeklyPoints: [{ label: "3月", priceYuanPerSqm: 23006 }],
+        pricePoints: [{ label: "3月", priceYuanPerSqm: 23006 }],
+        listingCount: null,
+        districtName: "西青",
+        districtPremiumPct: 7.72,
+        momChangePct: 0.99,
+        yoyChangePct: -10.72,
+        availableRangeLabels: ["近6月", "近1年", "近3年"],
       },
     });
   }, 15_000);

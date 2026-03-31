@@ -10,6 +10,40 @@ export const SERIES_DIR = resolve(DATA_DIR, "series");
 export const COMMUNITIES_CONFIG_PATH = resolve(CONFIG_DIR, "communities.json");
 export const SEGMENTS_CONFIG_PATH = resolve(CONFIG_DIR, "segments.json");
 
+export interface DataPaths {
+  dataDir: string;
+  configDir: string;
+  runsDir: string;
+  reportsDir: string;
+  publicDir: string;
+  seriesDir: string;
+  manualDir: string;
+  manualIncomingDir: string;
+  manualAcceptedDir: string;
+  communitiesConfigPath: string;
+  segmentsConfigPath: string;
+}
+
+export function resolveDataPaths(dataDir: string = DATA_DIR): DataPaths {
+  const resolvedDataDir = resolve(dataDir);
+  const configDir = resolve(resolvedDataDir, "config");
+  const manualDir = resolve(resolvedDataDir, "manual");
+
+  return {
+    dataDir: resolvedDataDir,
+    configDir,
+    runsDir: resolve(resolvedDataDir, "runs"),
+    reportsDir: resolve(resolvedDataDir, "reports"),
+    publicDir: resolve(resolvedDataDir, "public"),
+    seriesDir: resolve(resolvedDataDir, "series"),
+    manualDir,
+    manualIncomingDir: resolve(manualDir, "incoming"),
+    manualAcceptedDir: resolve(manualDir, "accepted"),
+    communitiesConfigPath: resolve(configDir, "communities.json"),
+    segmentsConfigPath: resolve(configDir, "segments.json"),
+  };
+}
+
 export function communitySegmentPath(
   communityId: string,
   segmentId: string,

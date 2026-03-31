@@ -24,11 +24,22 @@ interface StatsGovRunSource {
   status: SourceStatus;
   latestMonth?: string;
   city?: string;
+  secondaryHomePriceIndexMom?: number | null;
+  secondaryHomePriceIndexYoy?: number | null;
 }
 
 interface FangCommunityRunSource {
   status: SourceStatus;
   referenceUnitPrice?: number | null;
+  listingCount?: number | null;
+  recentDealHints?: string[];
+  currentListingTeasers?: Array<{
+    title: string | null;
+    roomCount: number | null;
+    areaSqm: number | null;
+    totalPriceWan: number | null;
+    unitPriceYuanPerSqm: number | null;
+  }>;
 }
 
 interface FangWeekreportPoint {
@@ -38,7 +49,13 @@ interface FangWeekreportPoint {
 
 interface FangWeekreportRunSource {
   status: SourceStatus;
-  weeklyPoints?: FangWeekreportPoint[];
+  pricePoints?: FangWeekreportPoint[];
+  listingCount?: number | null;
+  districtName?: string | null;
+  districtPremiumPct?: number | null;
+  momChangePct?: number | null;
+  yoyChangePct?: number | null;
+  availableRangeLabels?: string[];
 }
 
 interface CommunityRunSources {
@@ -131,6 +148,8 @@ function mergeStatsGovRun(
       status: next.status,
       latestMonth: next.latestMonth,
       city: next.city,
+      secondaryHomePriceIndexMom: next.secondaryHomePriceIndexMom,
+      secondaryHomePriceIndexYoy: next.secondaryHomePriceIndexYoy,
     };
   }
 
@@ -138,6 +157,10 @@ function mergeStatsGovRun(
     status: next.status,
     latestMonth: next.latestMonth ?? previous?.latestMonth,
     city: next.city ?? previous?.city,
+    secondaryHomePriceIndexMom:
+      next.secondaryHomePriceIndexMom ?? previous?.secondaryHomePriceIndexMom,
+    secondaryHomePriceIndexYoy:
+      next.secondaryHomePriceIndexYoy ?? previous?.secondaryHomePriceIndexYoy,
   };
 }
 
@@ -149,12 +172,19 @@ function mergeFangCommunityRun(
     return {
       status: next.status,
       referenceUnitPrice: next.referenceUnitPrice,
+      listingCount: next.listingCount,
+      recentDealHints: next.recentDealHints,
+      currentListingTeasers: next.currentListingTeasers,
     };
   }
 
   return {
     status: next.status,
     referenceUnitPrice: next.referenceUnitPrice ?? previous?.referenceUnitPrice,
+    listingCount: next.listingCount ?? previous?.listingCount,
+    recentDealHints: next.recentDealHints ?? previous?.recentDealHints,
+    currentListingTeasers:
+      next.currentListingTeasers ?? previous?.currentListingTeasers,
   };
 }
 
@@ -165,13 +195,26 @@ function mergeFangWeekreportRun(
   if (next.status === "success") {
     return {
       status: next.status,
-      weeklyPoints: next.weeklyPoints,
+      pricePoints: next.pricePoints,
+      listingCount: next.listingCount,
+      districtName: next.districtName,
+      districtPremiumPct: next.districtPremiumPct,
+      momChangePct: next.momChangePct,
+      yoyChangePct: next.yoyChangePct,
+      availableRangeLabels: next.availableRangeLabels,
     };
   }
 
   return {
     status: next.status,
-    weeklyPoints: next.weeklyPoints ?? previous?.weeklyPoints,
+    pricePoints: next.pricePoints ?? previous?.pricePoints,
+    listingCount: next.listingCount ?? previous?.listingCount,
+    districtName: next.districtName ?? previous?.districtName,
+    districtPremiumPct: next.districtPremiumPct ?? previous?.districtPremiumPct,
+    momChangePct: next.momChangePct ?? previous?.momChangePct,
+    yoyChangePct: next.yoyChangePct ?? previous?.yoyChangePct,
+    availableRangeLabels:
+      next.availableRangeLabels ?? previous?.availableRangeLabels,
   };
 }
 
@@ -214,6 +257,8 @@ async function collectStatsGovRun(
       status: "success",
       latestMonth: parsed.month,
       city: parsed.city,
+      secondaryHomePriceIndexMom: parsed.secondaryHomePriceIndexMom,
+      secondaryHomePriceIndexYoy: parsed.secondaryHomePriceIndexYoy,
     });
   } catch {
     return mergeStatsGovRun(previousSource, { status: "failed" });
@@ -249,6 +294,9 @@ async function collectCommunityRun(
       fangCommunityRun = mergeFangCommunityRun(previousCommunity?.fangCommunity, {
         status: "success",
         referenceUnitPrice: parsed.referencePriceYuanPerSqm,
+        listingCount: parsed.listingCount,
+        recentDealHints: parsed.recentDealHints,
+        currentListingTeasers: parsed.currentListingTeasers,
       });
     } catch {
       fangCommunityRun = mergeFangCommunityRun(previousCommunity?.fangCommunity, {
@@ -272,10 +320,16 @@ async function collectCommunityRun(
 
       fangWeekreportRun = mergeFangWeekreportRun(previousCommunity?.fangWeekreport, {
         status: "success",
-        weeklyPoints: parsed.pricePoints.map((point) => ({
+        pricePoints: parsed.pricePoints.map((point) => ({
           label: point.label,
           priceYuanPerSqm: point.priceYuanPerSqm,
         })),
+        listingCount: parsed.listingCount,
+        districtName: parsed.districtName,
+        districtPremiumPct: parsed.districtPremiumPct,
+        momChangePct: parsed.momChangePct,
+        yoyChangePct: parsed.yoyChangePct,
+        availableRangeLabels: parsed.availableRangeLabels,
       });
     } catch {
       fangWeekreportRun = mergeFangWeekreportRun(previousCommunity?.fangWeekreport, {
