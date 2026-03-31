@@ -1,0 +1,51 @@
+name: Manual sample
+description: Submit one manual成交样本 for a monitored Tianjin community segment.
+title: "[manual-sample] "
+body:
+  - type: dropdown
+    id: community
+    attributes:
+      label: Community
+      description: Pick the monitored community that this sample belongs to.
+      options:
+        - 鸣泉花园 (mingquan-huayuan)
+        - 富力津门湖嘉郡花园 (jiajun-huayuan)
+        - 富力津门湖云舒花园 (yunshu-huayuan)
+        - 富力津门湖柏溪花园 (boxi-huayuan)
+        - 海逸长洲瀚波园 (haiyi-changzhou-hanboyuan)
+    validations:
+      required: true
+  - type: dropdown
+    id: segment
+    attributes:
+      label: Segment
+      description: Pick the monitored segment for this deal sample.
+      options:
+        - 两居 87-90㎡ (2br-87-90)
+        - 三居 140-150㎡ (3br-140-150)
+    validations:
+      required: true
+  - type: input
+    id: sample-date
+    attributes:
+      label: Sample date
+      description: Use the local成交 date in `YYYY-MM-DD` format.
+      placeholder: "2026-03-30"
+    validations:
+      required: true
+  - type: input
+    id: deal-unit-price
+    attributes:
+      label: Deal unit price (yuan/sqm)
+      description: Enter the成交单价 as a whole number in yuan per square meter.
+      placeholder: "19300"
+    validations:
+      required: true
+  - type: input
+    id: evidence-url
+    attributes:
+      label: Evidence URL
+      description: Provide the source page or screenshot URL that supports this sample.
+      placeholder: "https://example.com/listings/123"
+    validations:
+      required: true
