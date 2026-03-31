@@ -2,6 +2,28 @@ import { z } from "zod";
 
 const slugSchema = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
+function withUniqueIds<T extends { id: string }>(
+  schema: z.ZodArray<z.ZodType<T>>,
+  entityName: string,
+) {
+  return schema.superRefine((items, context) => {
+    const seenIds = new Map<string, number>();
+
+    items.forEach((item, index) => {
+      if (!seenIds.has(item.id)) {
+        seenIds.set(item.id, index);
+        return;
+      }
+
+      context.addIssue({
+        code: "custom",
+        message: `Duplicate ${entityName} id: ${item.id}`,
+        path: [index, "id"],
+      });
+    });
+  });
+}
+
 export const communitySourcesSchema = z
   .object({
     fangCommunityUrl: z.string().url(),
@@ -19,7 +41,10 @@ export const communitySchema = z
   })
   .strict();
 
-export const communitiesSchema = z.array(communitySchema).min(1);
+export const communitiesSchema = withUniqueIds(
+  z.array(communitySchema).min(1),
+  "community",
+);
 
 export const segmentTemplateSchema = z
   .object({
@@ -34,4 +59,7 @@ export const segmentTemplateSchema = z
     message: "areaMin must be less than or equal to areaMax",
   });
 
-export const segmentsSchema = z.array(segmentTemplateSchema).min(1);
+export const segmentsSchema = withUniqueIds(
+  z.array(segmentTemplateSchema).min(1),
+  "segment",
+);

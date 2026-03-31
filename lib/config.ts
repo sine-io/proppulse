@@ -8,10 +8,14 @@ function readJsonFile(filePath: string): unknown {
   return JSON.parse(readFileSync(filePath, "utf8"));
 }
 
-export function loadCommunities(): Community[] {
-  return communitiesSchema.parse(readJsonFile(COMMUNITIES_CONFIG_PATH));
+export function loadCommunities(
+  filePath: string = COMMUNITIES_CONFIG_PATH,
+): Community[] {
+  return communitiesSchema.parse(readJsonFile(filePath));
 }
 
-export function loadSegments(): SegmentTemplate[] {
-  return segmentsSchema.parse(readJsonFile(SEGMENTS_CONFIG_PATH));
+export function loadSegments(
+  filePath: string = SEGMENTS_CONFIG_PATH,
+): SegmentTemplate[] {
+  return segmentsSchema.parse(readJsonFile(filePath));
 }

@@ -17,6 +17,12 @@
   "include": [
     "lib/**/*.ts",
     "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "collector/**/*.ts",
+    "parser/**/*.ts",
+    "scripts/**/*.ts",
+    "site/**/*.ts",
+    "site/**/*.tsx",
     "vite.config.ts",
     "vitest.config.ts",
     "playwright.config.ts"
