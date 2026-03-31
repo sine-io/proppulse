@@ -208,6 +208,8 @@ export default function App({
     primaryCommunity.name,
     primarySegments,
   ).slice(0, 3);
+  const currentMarketEntry =
+    data.latestReport?.cityMarket ?? data.cityMarket.series.at(-1) ?? null;
   const weeklySummaryText = buildWeeklySummaryText(
     data,
     primaryCommunity.id,
@@ -269,7 +271,7 @@ export default function App({
         ) : (
           <>
             <div className="summary-stack">
-              <MarketCard latestEntry={data.latestReport?.cityMarket ?? null} />
+              <MarketCard latestEntry={currentMarketEntry} />
 
               <section className="card" data-testid="anomaly-card">
                 <div className="eyebrow">异常提醒</div>

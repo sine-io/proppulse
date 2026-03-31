@@ -568,6 +568,7 @@ describe("site App", () => {
     expect(within(marketCard).getByText("偏强")).toBeInTheDocument();
     expect(within(marketCard).getByText("中性")).toBeInTheDocument();
     expect(within(marketCard).getAllByText("偏弱").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("current-market-verdict")).toHaveTextContent("偏弱");
 
     const segmentGrid = screen.getByTestId("segment-grid");
     expect(within(segmentGrid).getAllByText("鸣泉花园")).toHaveLength(2);
@@ -609,5 +610,27 @@ describe("site App", () => {
       name: "新增一条样本",
     });
     expect(manualInputLink).toHaveAttribute("href", issueFormUrl);
+  });
+
+  it("falls back to the latest city-market series entry when the report market snapshot is missing", async () => {
+    render(
+      <App
+        issueFormUrl={issueFormUrl}
+        loader={async () => ({
+          ...sampleData,
+          latestReport: sampleData.latestReport
+            ? {
+                ...sampleData.latestReport,
+                cityMarket: null,
+              }
+            : null,
+        })}
+        primaryCommunityId="mingquan-huayuan"
+      />,
+    );
+
+    expect(await screen.findByTestId("current-market-verdict")).toHaveTextContent(
+      "偏弱",
+    );
   });
 });

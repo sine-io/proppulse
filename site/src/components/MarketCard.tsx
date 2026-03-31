@@ -27,7 +27,12 @@ export default function MarketCard({
             以国家统计局二手房价格指数为准，给出当前监测周期的方向判断。
           </p>
         </div>
-        <div className="market-pulse" data-state={latestEntry?.verdict ?? "未知"}>
+        <div
+          aria-label="当前市场判断"
+          className="market-pulse"
+          data-state={latestEntry?.verdict ?? "未知"}
+          data-testid="current-market-verdict"
+        >
           {latestEntry?.verdict ?? "待更新"}
         </div>
       </div>
