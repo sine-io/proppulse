@@ -64,9 +64,11 @@ export default function DataQualityCard({
         <div>
           <dt>取值来源</dt>
           <dd>
-            {latestSeriesEntry?.derivedFrom === "segment-teasers"
-              ? "户型挂牌样本"
-              : "小区级回退"}
+            {latestSeriesEntry
+              ? latestSeriesEntry.derivedFrom === "segment-teasers"
+                ? "户型挂牌样本"
+                : "小区级回退"
+              : "缺少趋势点位"}
           </dd>
         </div>
         <div>

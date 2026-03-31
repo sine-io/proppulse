@@ -83,14 +83,18 @@ function deriveLatestAnomalies(
   });
 }
 
-function buildWeeklySummaryText(data: DashboardData, primaryCommunityName: string): string {
+function buildWeeklySummaryText(
+  data: DashboardData,
+  primaryCommunityId: string,
+  primaryCommunityName: string,
+): string {
   const report = data.latestReport;
 
   if (!report || !report.cityMarket) {
     return "暂无最新周报摘要，等待下一次数据构建。";
   }
 
-  const primaryCommunity = report.communities[DEFAULT_PRIMARY_COMMUNITY_ID];
+  const primaryCommunity = report.communities[primaryCommunityId];
   const insufficientCount = Object.values(primaryCommunity?.segments ?? {}).filter(
     (segment) => segment.verdict === "样本不足",
   ).length;
@@ -204,7 +208,11 @@ export default function App({
     primaryCommunity.name,
     primarySegments,
   ).slice(0, 3);
-  const weeklySummaryText = buildWeeklySummaryText(data, primaryCommunity.name);
+  const weeklySummaryText = buildWeeklySummaryText(
+    data,
+    primaryCommunity.id,
+    primaryCommunity.name,
+  );
   const selectedSegment =
     primarySegments.find((segment) => segment.segment.id === selectedSegmentId) ?? null;
 
@@ -267,9 +275,13 @@ export default function App({
                 <div className="eyebrow">异常提醒</div>
                 <h2>本周先看这些缺口</h2>
                 <ul className="summary-list">
-                  {latestAnomalies.map((item) => (
-                    <li key={item.id}>{item.detail}</li>
-                  ))}
+                  {latestAnomalies.length > 0 ? (
+                    latestAnomalies.map((item) => (
+                      <li key={item.id}>{item.detail}</li>
+                    ))
+                  ) : (
+                    <li>暂无异常提醒，本周数据完整度维持正常。</li>
+                  )}
                 </ul>
               </section>
 

@@ -52,7 +52,9 @@ export default function SegmentCard({
       </dl>
       <p className="muted">
         {latest
-          ? `最新样本 ${latest.listingsCount} 套，适合继续跟踪。`
+          ? latest.listingsCount > 0
+            ? `最新样本 ${latest.listingsCount} 套，适合继续跟踪。`
+            : "当前挂牌样本为 0 套，建议补样或等待新周期。"
           : "缺少最新周报快照，暂时只显示基础时间序列。"}
       </p>
       <button
