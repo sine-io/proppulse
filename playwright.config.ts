@@ -8,6 +8,11 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:4173",
     trace: "on-first-retry",
   },
+  webServer: {
+    command: "npm run preview -- --host 127.0.0.1 --strictPort",
+    reuseExistingServer: !process.env.CI,
+    url: "http://127.0.0.1:4173",
+  },
   projects: [
     {
       name: "chromium",
