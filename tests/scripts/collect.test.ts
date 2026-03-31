@@ -85,6 +85,15 @@ function listRunFiles(runsDir: string): string[] {
   return readdirSync(runsDir).sort();
 }
 
+function snapshotRunFiles(runsDir: string): Record<string, string> {
+  return Object.fromEntries(
+    listRunFiles(runsDir).map((entry) => [
+      entry,
+      readFileSync(resolve(runsDir, entry), "utf8"),
+    ]),
+  );
+}
+
 describe("scripts/collect.ts", () => {
   afterEach(() => {
     while (temporaryRoots.length > 0) {
@@ -95,11 +104,11 @@ describe("scripts/collect.ts", () => {
   it("writes normalized latest and archived run artifacts for all configured sources", () => {
     const fixtureRoot = makeFixtureRoot();
     const runsDir = makeRunsDir();
-    const repoRunsBefore = listRunFiles(REPO_RUNS_DIR);
+    const repoRunsBefore = snapshotRunFiles(REPO_RUNS_DIR);
 
     runCollect("--fixture", fixtureRoot, "--runs-dir", runsDir);
 
-    expect(listRunFiles(REPO_RUNS_DIR)).toEqual(repoRunsBefore);
+    expect(snapshotRunFiles(REPO_RUNS_DIR)).toEqual(repoRunsBefore);
     expect(listRunFiles(runsDir)).toContain("latest.json");
 
     const latestRun = readLatestRun(runsDir) as {
@@ -145,7 +154,7 @@ describe("scripts/collect.ts", () => {
   it("preserves the last successful normalized values in latest.json when a source fails", () => {
     const fixtureRoot = makeFixtureRoot();
     const runsDir = makeRunsDir();
-    const repoRunsBefore = listRunFiles(REPO_RUNS_DIR);
+    const repoRunsBefore = snapshotRunFiles(REPO_RUNS_DIR);
 
     runCollect("--fixture", fixtureRoot, "--runs-dir", runsDir);
 
@@ -157,7 +166,7 @@ describe("scripts/collect.ts", () => {
 
     runCollect("--fixture", fixtureRoot, "--runs-dir", runsDir);
 
-    expect(listRunFiles(REPO_RUNS_DIR)).toEqual(repoRunsBefore);
+    expect(snapshotRunFiles(REPO_RUNS_DIR)).toEqual(repoRunsBefore);
 
     const latestRun = readLatestRun(runsDir) as {
       communities: Record<
