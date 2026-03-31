@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: "0 1 * * 1"
 
+concurrency:
+  group: repo-main-write-serialization
+  cancel-in-progress: false
+
 permissions:
   contents: write
 

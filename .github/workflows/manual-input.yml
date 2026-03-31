@@ -7,6 +7,10 @@ on:
       - edited
       - reopened
 
+concurrency:
+  group: repo-main-write-serialization
+  cancel-in-progress: false
+
 permissions:
   contents: write
   issues: read
@@ -16,6 +20,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Trust gate
+        run: |
+          case "${{ github.event.issue.author_association }}" in
+            OWNER|MEMBER|COLLABORATOR)
+              ;;
+            *)
+              echo "Untrusted issue author association: ${{ github.event.issue.author_association }}"
+              exit 1
+              ;;
+          esac
+
       - name: Reject non-template issues
         run: |
           node <<'EOF'
