@@ -11,7 +11,7 @@ import {
 } from "./lib/load-json";
 
 const DEFAULT_ISSUE_FORM_URL =
-  "https://github.com/example/tianjin-housing-monitor/issues/new?template=manual-sample.yml";
+  "https://github.com/sine-io/tianjin-housing-monitor/issues/new?template=manual-sample.yml";
 const DEFAULT_PRIMARY_COMMUNITY_ID = "mingquan-huayuan";
 
 interface AppProps {

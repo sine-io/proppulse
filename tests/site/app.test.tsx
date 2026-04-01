@@ -8,7 +8,7 @@ import App from "../../site/src/App";
 import type { DashboardData } from "../../site/src/lib/load-json";
 
 const issueFormUrl =
-  "https://github.com/example/tianjin-housing-monitor/issues/new?template=manual-sample.yml";
+  "https://github.com/sine-io/tianjin-housing-monitor/issues/new?template=manual-sample.yml";
 
 const sampleData: DashboardData = {
   communities: [
@@ -555,6 +555,17 @@ const sampleData: DashboardData = {
 };
 
 describe("site App", () => {
+  it("uses the repository manual issue form as the default CTA target", async () => {
+    render(
+      <App loader={async () => sampleData} primaryCommunityId="mingquan-huayuan" />,
+    );
+
+    const manualInputLink = await screen.findByRole("link", {
+      name: "新增一条样本",
+    });
+    expect(manualInputLink).toHaveAttribute("href", issueFormUrl);
+  });
+
   it("renders homepage summary cards and a segment detail view from static json", async () => {
     render(
       <App
