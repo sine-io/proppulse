@@ -81,6 +81,7 @@ export interface WeeklyReport {
 export interface DashboardData {
   communities: Community[];
   segments: SegmentTemplate[];
+  primarySegmentsByCommunityId: Record<string, SegmentTemplate>;
   cityMarket: CityMarketSeriesFile;
   latestReport: WeeklyReport | null;
   communitySeries: Record<string, Record<string, CommunitySegmentSeriesFile>>;
@@ -135,8 +136,39 @@ function makeEmptySeriesFile(
   };
 }
 
-function normalizeCommunityStatus(status?: CommunityStatus): CommunityStatus {
-  return status === "pending_verification" ? "pending_verification" : "active";
+function parseCommunityStatus(community: CommunityConfigEntry): CommunityStatus {
+  if (community.status === "active" || community.status === "pending_verification") {
+    return community.status;
+  }
+
+  if (community.status === undefined) {
+    throw new Error(
+      `Community ${community.id} is missing required status in public config`,
+    );
+  }
+
+  throw new Error(`Community ${community.id} has unsupported status ${community.status}`);
+}
+
+function buildPrimarySegmentsByCommunityId(
+  communities: Community[],
+  segments: SegmentTemplate[],
+): Record<string, SegmentTemplate> {
+  const entries = communities.map((community) => {
+    const communitySegments = segments.filter(
+      (segment) => segment.communityId === community.id,
+    );
+
+    if (communitySegments.length !== 1) {
+      throw new Error(
+        `Community ${community.id} must have exactly one primary segment in public config`,
+      );
+    }
+
+    return [community.id, communitySegments[0]] as const;
+  });
+
+  return Object.fromEntries(entries);
 }
 
 export async function loadDashboardData(): Promise<DashboardData> {
@@ -147,8 +179,12 @@ export async function loadDashboardData(): Promise<DashboardData> {
   ]);
   const normalizedCommunities = communities.map((community) => ({
     ...community,
-    status: normalizeCommunityStatus(community.status),
+    status: parseCommunityStatus(community),
   }));
+  const primarySegmentsByCommunityId = buildPrimarySegmentsByCommunityId(
+    normalizedCommunities,
+    segments,
+  );
 
   const latestDate = cityMarket.series.at(-1)?.date;
   const latestReport = latestDate
@@ -157,20 +193,20 @@ export async function loadDashboardData(): Promise<DashboardData> {
 
   const communitySeriesEntries = await Promise.all(
     normalizedCommunities.map(async (community) => {
-      const communitySegments = segments.filter(
-        (segment) => segment.communityId === community.id,
-      );
+      const communitySegment = primarySegmentsByCommunityId[community.id];
 
       return [
         community.id,
         Object.fromEntries(
           await Promise.all(
-            communitySegments.map(async (segment) => [
-              segment.id,
-              (await loadOptionalJson<CommunitySegmentSeriesFile>(
-                `data/series/communities/${community.id}/${segment.id}.json`,
-              )) ?? makeEmptySeriesFile(community, segment),
-            ]),
+            [
+              [
+                communitySegment.id,
+                (await loadOptionalJson<CommunitySegmentSeriesFile>(
+                  `data/series/communities/${community.id}/${communitySegment.id}.json`,
+                )) ?? makeEmptySeriesFile(community, communitySegment),
+              ],
+            ],
           ),
         ),
       ] as const;
@@ -180,6 +216,7 @@ export async function loadDashboardData(): Promise<DashboardData> {
   return {
     communities: normalizedCommunities,
     segments,
+    primarySegmentsByCommunityId,
     cityMarket,
     latestReport,
     communitySeries: Object.fromEntries(communitySeriesEntries),

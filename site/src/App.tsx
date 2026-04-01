@@ -26,7 +26,6 @@ interface AnomalyItem {
 }
 
 type CommunityRecord = DashboardData["communities"][number];
-type CommunitySegmentRecord = DashboardData["segments"][number];
 
 function formatPrice(value: number | null | undefined): string {
   if (value === null || value === undefined) {
@@ -119,20 +118,6 @@ function countInsufficientSegments(
   return segments.filter((segment) => segment.verdict === "样本不足").length;
 }
 
-function getCommunitySegments(
-  data: DashboardData,
-  communityId: string,
-): CommunitySegmentRecord[] {
-  return data.segments.filter((segment) => segment.communityId === communityId);
-}
-
-function getPrimarySegment(
-  data: DashboardData,
-  communityId: string,
-): CommunitySegmentRecord | null {
-  return getCommunitySegments(data, communityId)[0] ?? null;
-}
-
 function getDisplayVerdict(
   community: CommunityRecord,
   verdict: string | null | undefined,
@@ -212,6 +197,7 @@ export default function App({
     data.communities.find((community) => community.id === primaryCommunityId) ??
     data.communities[0] ??
     null;
+  const primarySegmentsByCommunityId = data.primarySegmentsByCommunityId ?? {};
 
   if (!primaryCommunity) {
     return (
@@ -227,8 +213,28 @@ export default function App({
     );
   }
 
+  const invalidPrimarySegmentCommunity =
+    data.communities.find(
+      (community) => !primarySegmentsByCommunityId[community.id],
+    ) ?? null;
+
+  if (invalidPrimarySegmentCommunity) {
+    return (
+      <main className="app-shell">
+        <div className="shell">
+          <section className="card error-card" role="alert">
+            <div className="eyebrow">配置异常</div>
+            <h1>主监控户型映射无效</h1>
+            <p>{invalidPrimarySegmentCommunity.name} 缺少唯一主监控户型映射。</p>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
   const primaryReport = data.latestReport?.communities[primaryCommunity.id] ?? null;
-  const primarySegments = getCommunitySegments(data, primaryCommunity.id).map((segment) => {
+  const primarySegments = [primarySegmentsByCommunityId[primaryCommunity.id]].map(
+    (segment) => {
     const snapshot = primaryReport?.segments[segment.id] ?? null;
     const latestEntry =
       data.communitySeries[primaryCommunity.id]?.[segment.id]?.series.at(-1) ?? null;
@@ -240,7 +246,8 @@ export default function App({
       latest: snapshot?.latest ?? null,
       latestEntry,
     };
-  });
+    },
+  );
 
   const latestAnomalies = deriveLatestAnomalies(
     primaryCommunity.name,
@@ -259,19 +266,17 @@ export default function App({
   const comparisonCommunities = data.communities
     .filter((community) => community.id !== primaryCommunity.id)
     .map((community) => {
-      const primarySegment = getPrimarySegment(data, community.id);
-      const snapshot = primarySegment
-        ? data.latestReport?.communities[community.id]?.segments[primarySegment.id] ?? null
-        : null;
-      const latestEntry = primarySegment
-        ? data.communitySeries[community.id]?.[primarySegment.id]?.series.at(-1) ?? null
-        : null;
+      const primarySegment = primarySegmentsByCommunityId[community.id];
+      const snapshot =
+        data.latestReport?.communities[community.id]?.segments[primarySegment.id] ?? null;
+      const latestEntry =
+        data.communitySeries[community.id]?.[primarySegment.id]?.series.at(-1) ?? null;
 
       return {
         id: community.id,
         name: community.name,
         district: community.district,
-        segmentLabel: primarySegment?.label ?? snapshot?.label ?? "待补齐",
+        segmentLabel: primarySegment.label,
         verdict: getDisplayVerdict(community, snapshot?.verdict),
         latestPrice:
           snapshot?.latest?.listingUnitPriceMedian ??

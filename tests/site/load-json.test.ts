@@ -1,0 +1,212 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { loadDashboardData } from "../../site/src/lib/load-json";
+
+function jsonResponse(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+function installFetchMock(routes: Record<string, Response>): void {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: string | URL | Request) => {
+      const url = String(input);
+
+      for (const [suffix, response] of Object.entries(routes)) {
+        if (url.endsWith(suffix)) {
+          return response.clone();
+        }
+      }
+
+      return new Response("not found", { status: 404 });
+    }),
+  );
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
+
+describe("loadDashboardData", () => {
+  it("builds an explicit primary segment lookup keyed by communityId", async () => {
+    installFetchMock({
+      "data/config/communities.json": jsonResponse([
+        {
+          id: "mingquan-huayuan",
+          name: "鸣泉花园",
+          city: "天津",
+          district: "西青",
+          status: "active",
+          sources: {
+            fangCommunityUrl: "https://example.com/mingquan/community",
+            fangWeekreportUrl: "https://example.com/mingquan/weekreport",
+          },
+        },
+        {
+          id: "boxi-huayuan",
+          name: "柏溪花园",
+          city: "天津",
+          district: "西青",
+          status: "active",
+          sources: {
+            fangCommunityUrl: "https://example.com/boxi/community",
+            fangWeekreportUrl: "https://example.com/boxi/weekreport",
+          },
+        },
+      ]),
+      "data/config/segments.json": jsonResponse([
+        {
+          communityId: "mingquan-huayuan",
+          id: "mingquan-2br-87-90",
+          label: "2居 87-90㎡",
+          rooms: 2,
+          areaMin: 87,
+          areaMax: 90,
+        },
+        {
+          communityId: "boxi-huayuan",
+          id: "boxi-2br-100-120",
+          label: "2居 100-120㎡",
+          rooms: 2,
+          areaMin: 100,
+          areaMax: 120,
+        },
+      ]),
+      "data/series/city-market/tianjin.json": jsonResponse({
+        city: "天津",
+        series: [
+          {
+            date: "2026-04-01",
+            generatedAt: "2026-04-01T07:32:04.312Z",
+            sourceMonth: "2026-02",
+            secondaryHomePriceIndexMom: 99.5,
+            secondaryHomePriceIndexYoy: 94,
+            verdict: "偏弱",
+          },
+        ],
+      }),
+    });
+
+    const data = await loadDashboardData();
+
+    expect(data.primarySegmentsByCommunityId).toEqual({
+      "mingquan-huayuan": {
+        communityId: "mingquan-huayuan",
+        id: "mingquan-2br-87-90",
+        label: "2居 87-90㎡",
+        rooms: 2,
+        areaMin: 87,
+        areaMax: 90,
+      },
+      "boxi-huayuan": {
+        communityId: "boxi-huayuan",
+        id: "boxi-2br-100-120",
+        label: "2居 100-120㎡",
+        rooms: 2,
+        areaMin: 100,
+        areaMax: 120,
+      },
+    });
+  });
+
+  it("fails loudly when a community status is missing from the generated public config", async () => {
+    installFetchMock({
+      "data/config/communities.json": jsonResponse([
+        {
+          id: "lianhai-yuan",
+          name: "恋海园",
+          city: "天津",
+          district: "待确认",
+          sources: {
+            fangCommunityUrl: null,
+            fangWeekreportUrl: null,
+          },
+        },
+      ]),
+      "data/config/segments.json": jsonResponse([
+        {
+          communityId: "lianhai-yuan",
+          id: "lianhai-2br-90-110",
+          label: "2居 90-110㎡",
+          rooms: 2,
+          areaMin: 90,
+          areaMax: 110,
+        },
+      ]),
+      "data/series/city-market/tianjin.json": jsonResponse({
+        city: "天津",
+        series: [
+          {
+            date: "2026-04-01",
+            generatedAt: "2026-04-01T07:32:04.312Z",
+            sourceMonth: "2026-02",
+            secondaryHomePriceIndexMom: 99.5,
+            secondaryHomePriceIndexYoy: 94,
+            verdict: "偏弱",
+          },
+        ],
+      }),
+    });
+
+    await expect(loadDashboardData()).rejects.toThrow(/lianhai-yuan.+status/i);
+  });
+
+  it("fails loudly when a community has more than one primary segment", async () => {
+    installFetchMock({
+      "data/config/communities.json": jsonResponse([
+        {
+          id: "mingquan-huayuan",
+          name: "鸣泉花园",
+          city: "天津",
+          district: "西青",
+          status: "active",
+          sources: {
+            fangCommunityUrl: "https://example.com/mingquan/community",
+            fangWeekreportUrl: "https://example.com/mingquan/weekreport",
+          },
+        },
+      ]),
+      "data/config/segments.json": jsonResponse([
+        {
+          communityId: "mingquan-huayuan",
+          id: "mingquan-2br-87-90",
+          label: "2居 87-90㎡",
+          rooms: 2,
+          areaMin: 87,
+          areaMax: 90,
+        },
+        {
+          communityId: "mingquan-huayuan",
+          id: "mingquan-3br-120-140",
+          label: "3居 120-140㎡",
+          rooms: 3,
+          areaMin: 120,
+          areaMax: 140,
+        },
+      ]),
+      "data/series/city-market/tianjin.json": jsonResponse({
+        city: "天津",
+        series: [
+          {
+            date: "2026-04-01",
+            generatedAt: "2026-04-01T07:32:04.312Z",
+            sourceMonth: "2026-02",
+            secondaryHomePriceIndexMom: 99.5,
+            secondaryHomePriceIndexYoy: 94,
+            verdict: "偏弱",
+          },
+        ],
+      }),
+    });
+
+    await expect(loadDashboardData()).rejects.toThrow(
+      /mingquan-huayuan.+exactly one primary segment/i,
+    );
+  });
+});

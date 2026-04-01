@@ -40,6 +40,14 @@ function formatPrice(value: number | null | undefined): string {
   return `${value.toLocaleString("zh-CN")} 元/㎡`;
 }
 
+function formatListingsCount(value: number | null | undefined): string {
+  if (value === null || value === undefined) {
+    return "暂无";
+  }
+
+  return `${value} 套`;
+}
+
 function buildConclusionText(
   communityName: string,
   communityStatus: CommunityStatus,
@@ -143,7 +151,7 @@ export default function DetailView({
               <div className="comparison-metrics">
                 <span>{community.verdict ?? "待补齐"}</span>
                 <span>{formatPrice(community.latestPrice)}</span>
-                <span>{community.listingsCount ?? 0} 套</span>
+                <span>{formatListingsCount(community.listingsCount)}</span>
               </div>
             </li>
           ))}

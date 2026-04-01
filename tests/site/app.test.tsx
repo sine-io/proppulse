@@ -231,6 +231,48 @@ function makeSampleData(): DashboardData {
         },
       },
     },
+    primarySegmentsByCommunityId: {
+      "mingquan-huayuan": {
+        communityId: "mingquan-huayuan",
+        id: "mingquan-2br-87-90",
+        label: "2居 87-90㎡",
+        rooms: 2,
+        areaMin: 87,
+        areaMax: 90,
+      },
+      "boxi-huayuan": {
+        communityId: "boxi-huayuan",
+        id: "boxi-2br-100-120",
+        label: "2居 100-120㎡",
+        rooms: 2,
+        areaMin: 100,
+        areaMax: 120,
+      },
+      "lianhai-yuan": {
+        communityId: "lianhai-yuan",
+        id: "lianhai-2br-90-110",
+        label: "2居 90-110㎡",
+        rooms: 2,
+        areaMin: 90,
+        areaMax: 110,
+      },
+      "wanke-dongdi": {
+        communityId: "wanke-dongdi",
+        id: "wanke-3br-100-105",
+        label: "3居 100-105㎡",
+        rooms: 3,
+        areaMin: 100,
+        areaMax: 105,
+      },
+      "yijing-cun": {
+        communityId: "yijing-cun",
+        id: "yijing-2br-75-90",
+        label: "2居 75-90㎡",
+        rooms: 2,
+        areaMin: 75,
+        areaMax: 90,
+      },
+    },
     communitySeries: {
       "mingquan-huayuan": {
         "mingquan-2br-87-90": {
@@ -476,6 +518,84 @@ describe("site App", () => {
     const qualityCard = screen.getByTestId("data-quality-card");
     expect(within(qualityCard).getByText("2")).toBeInTheDocument();
     expect(within(qualityCard).getByText(/来源待复核/)).toBeInTheDocument();
+  });
+
+  it("shows 暂无 instead of 0 套 when a comparison community is missing listing counts", async () => {
+    const sampleData = makeSampleData();
+
+    render(
+      <App
+        issueFormUrl={issueFormUrl}
+        loader={async () => ({
+          ...sampleData,
+          latestReport: sampleData.latestReport
+            ? {
+                ...sampleData.latestReport,
+                communities: {
+                  ...sampleData.latestReport.communities,
+                  "boxi-huayuan": {
+                    ...sampleData.latestReport.communities["boxi-huayuan"],
+                    segments: {
+                      "boxi-2br-100-120": {
+                        ...sampleData.latestReport.communities["boxi-huayuan"].segments[
+                          "boxi-2br-100-120"
+                        ],
+                        latest: null,
+                      },
+                    },
+                  },
+                },
+              }
+            : null,
+          communitySeries: {
+            ...sampleData.communitySeries,
+            "boxi-huayuan": {
+              "boxi-2br-100-120": {
+                ...sampleData.communitySeries["boxi-huayuan"]["boxi-2br-100-120"],
+                series: [],
+              },
+            },
+          },
+        })}
+        primaryCommunityId="mingquan-huayuan"
+      />,
+    );
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: "查看 2居 87-90㎡ 详情" }),
+    );
+
+    const comparisonView = await screen.findByTestId("comparison-communities");
+    const boxiRow = within(comparisonView).getByText("柏溪花园").closest("li");
+
+    expect(boxiRow).not.toBeNull();
+    expect(within(boxiRow!).getAllByText("暂无").length).toBeGreaterThanOrEqual(2);
+    expect(within(boxiRow!).queryByText("0 套")).not.toBeInTheDocument();
+  });
+
+  it("shows a config error instead of inferring a primary segment from array order", async () => {
+    const sampleData = makeSampleData();
+
+    render(
+      <App
+        issueFormUrl={issueFormUrl}
+        loader={async () => ({
+          ...sampleData,
+          primarySegmentsByCommunityId: {
+            ...sampleData.primarySegmentsByCommunityId,
+            "mingquan-huayuan": undefined as never,
+          },
+        })}
+        primaryCommunityId="mingquan-huayuan"
+      />,
+    );
+
+    const alert = await screen.findByRole("alert");
+    expect(within(alert).getByText("配置异常")).toBeInTheDocument();
+    expect(
+      within(alert).getByText(/鸣泉花园 缺少唯一主监控户型映射/),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("segment-grid")).not.toBeInTheDocument();
   });
 
   it("falls back to the latest city-market series entry when the report market snapshot is missing", async () => {
