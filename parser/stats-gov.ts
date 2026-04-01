@@ -84,8 +84,7 @@ export function parseStatsGovCityMarket(
     const cells = $(row)
       .find("td,th")
       .toArray()
-      .map((cell) => normalizeText($(cell).text()))
-      .filter(Boolean);
+      .map((cell) => normalizeText($(cell).text()));
 
     if (cells.length < 4) {
       continue;
