@@ -60,10 +60,11 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm cache clean --force
+          npm ci
 
       - name: Ingest manual issue
         run: npx tsx scripts/ingest-manual-issue.ts

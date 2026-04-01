@@ -6,6 +6,10 @@ import { describe, expect, it } from "vitest";
 const SHARED_WRITE_CONCURRENCY_BLOCK = `concurrency:
   group: repo-main-write-serialization
   cancel-in-progress: false`;
+const HARDENED_INSTALL_STEP = `      - name: Install dependencies
+        run: |
+          npm cache clean --force
+          npm ci`;
 
 function readWorkflow(relativePath: string): string {
   return readFileSync(resolve(relativePath), "utf8");
@@ -30,6 +34,22 @@ describe("GitHub automation workflows", () => {
 
     for (const workflowPath of workflowPaths) {
       expect(readWorkflow(workflowPath)).toContain(SHARED_WRITE_CONCURRENCY_BLOCK);
+    }
+  });
+
+  it("uses cache-free clean installs in node-based workflows", () => {
+    const workflowPaths = [
+      ".github/workflows/manual-input.yml",
+      ".github/workflows/collect.yml",
+      ".github/workflows/weekly-report.yml",
+      ".github/workflows/deploy-pages.yml",
+    ];
+
+    for (const workflowPath of workflowPaths) {
+      const workflow = readWorkflow(workflowPath);
+
+      expect(workflow).not.toContain("cache: npm");
+      expect(workflow).toContain(HARDENED_INSTALL_STEP);
     }
   });
 });
