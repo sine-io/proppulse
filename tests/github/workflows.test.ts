@@ -81,4 +81,18 @@ describe("GitHub automation workflows", () => {
       expect(stepPositions[index]).toBeGreaterThan(stepPositions[index - 1]);
     }
   });
+
+  it("redeploys pages after successful data-refresh workflows complete", () => {
+    const workflow = readWorkflow(".github/workflows/deploy-pages.yml");
+
+    expect(workflow).toContain(`  workflow_run:
+    workflows:
+      - Collect
+      - Weekly Report
+    types:
+      - completed`);
+    expect(workflow).toContain(
+      "if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'",
+    );
+  });
 });

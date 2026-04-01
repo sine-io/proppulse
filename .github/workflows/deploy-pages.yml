@@ -10,6 +10,12 @@ on:
       - "data/config/**"
       - "data/series/**"
       - "data/reports/**"
+  workflow_run:
+    workflows:
+      - Collect
+      - Weekly Report
+    types:
+      - completed
   workflow_dispatch:
 
 permissions:
@@ -23,6 +29,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
     steps:
@@ -54,6 +61,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     needs: build
 
