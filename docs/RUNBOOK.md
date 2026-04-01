@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | `Collect` | Scheduled twice daily and `workflow_dispatch` | The site data looks stale, a scheduled run failed, or you want to retry collection after an upstream source issue. |
 | `Weekly Report` | Scheduled every Monday and `workflow_dispatch` | Weekly summaries look stale or you need to rebuild reports after manual inputs were accepted. |
-| `Deploy Pages` | Pushes to `main` that change site/data paths, successful `Collect`/`Weekly Report`, and `workflow_dispatch` | GitHub Pages is out of date, the deploy workflow did not auto-run, or you want to force a clean rebuild of the static site. |
+| `Deploy Pages` | Pushes to `main` that change site/data paths, successful `Collect`/`Weekly Report`, and `workflow_dispatch` | GitHub Pages is out of date, the deploy workflow did not auto-run, a docs-only commit did not trigger a deploy, or you want to force a clean rebuild of the static site. |
 | `Manual Input` | GitHub issue `opened`, `edited`, or `reopened` | Do not trigger manually; submit or update the manual sample issue form instead. |
 
 ## Minimal Health Check
@@ -26,7 +26,9 @@
 - Site looks stale:
   Inspect whether the latest `Collect` or `Weekly Report` run committed fresh files, then check whether `Deploy Pages` ran after that.
 - `Deploy Pages` did not run:
-  Check whether the upstream run concluded successfully and whether the changed files were under `site/**`, `site/public/data/**`, `data/config/**`, `data/series/**`, or `data/reports/**`.
+  Check whether the upstream run concluded successfully and whether the changed files were under `site/**`, `site/public/data/**`, `data/config/**`, `data/series/**`, or `data/reports/**`. Docs-only commits, including `README.md` and files under `docs/`, do not trigger `Deploy Pages`.
+- Republish after docs-only changes:
+  Run `Deploy Pages` manually with `workflow_dispatch` from the Actions tab.
 - Collection failed:
   Inspect the `Collect` logs first, especially Playwright Chromium install, upstream fetch failures, and the `npm run collect` step.
 - Manual input did not ingest:

@@ -64,6 +64,9 @@ To enable it in a repository:
 4. Ensure Actions are enabled for the repository.
 5. Push a commit that changes `site/**`, `site/public/data/**`, `data/config/**`, `data/series/**`, or `data/reports/**`.
 
+Docs-only commits, including `README.md` and files under `docs/`, do not trigger `Deploy Pages` automatically.
+If you need to republish after a docs-only change, run `Deploy Pages` manually with `workflow_dispatch` in GitHub Actions.
+
 The workflow builds `dist/` and deploys it with the official Pages actions.
 
 ## Issue Forms
