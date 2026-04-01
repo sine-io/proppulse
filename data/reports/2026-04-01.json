@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-04-01T07:22:48.315Z",
+  "generatedAt": "2026-04-01T07:34:56.839Z",
   "weekEnding": "2026-04-01",
   "cityMarket": {
     "date": "2026-04-01",
-    "generatedAt": "2026-04-01T07:20:41.842Z",
+    "generatedAt": "2026-04-01T07:32:04.312Z",
     "sourceMonth": "2026-02",
     "secondaryHomePriceIndexMom": 99.5,
     "secondaryHomePriceIndexYoy": 94,
@@ -31,7 +31,7 @@
           "latest": {
             "listingUnitPriceMedian": 23006,
             "listingUnitPriceMin": 23006,
-            "listingsCount": 0,
+            "listingsCount": 1,
             "suspectedDealCount": 177,
             "manualDealCount": 0
           }
@@ -48,7 +48,7 @@
           "latest": {
             "listingUnitPriceMedian": 22233,
             "listingUnitPriceMin": 22233,
-            "listingsCount": 1,
+            "listingsCount": 0,
             "suspectedDealCount": 193,
             "manualDealCount": 0
           }
