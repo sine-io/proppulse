@@ -36,6 +36,10 @@ export interface ManualSampleSummary {
   manualLatestSampleAt: string | null;
 }
 
+const TIANJIN_UTC_OFFSET_HOURS = 8;
+const TIANJIN_UTC_OFFSET_MILLISECONDS =
+  TIANJIN_UTC_OFFSET_HOURS * 60 * 60 * 1000;
+
 interface ManualSampleWindow {
   startAt: number;
   endAt: number;
@@ -48,6 +52,28 @@ interface MatchingManualDealSample {
 
 function readJsonFile(filePath: string): unknown {
   return JSON.parse(readFileSync(filePath, "utf8"));
+}
+
+function formatIsoDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function shiftIsoDate(dateString: string, offsetDays: number): string {
+  const date = new Date(`${dateString}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + offsetDays);
+  return formatIsoDate(date);
+}
+
+function getTianjinLocalDate(isoDateTime: string): string {
+  const instant = Date.parse(isoDateTime);
+  return formatIsoDate(new Date(instant + TIANJIN_UTC_OFFSET_MILLISECONDS));
+}
+
+function getTianjinDayWindow(dateString: string): ManualSampleWindow {
+  return {
+    startAt: Date.parse(`${dateString}T00:00:00.000+08:00`),
+    endAt: Date.parse(`${dateString}T23:59:59.999+08:00`),
+  };
 }
 
 export function validateManualInputFile(
@@ -97,15 +123,14 @@ export function summarizeManualSamples(
   windowEndIso: string,
 ): ManualSampleSummary {
   const windowEnd = Date.parse(windowEndIso);
-  const windowStartDate = new Date(windowEndIso);
-  windowStartDate.setUTCHours(0, 0, 0, 0);
-  windowStartDate.setUTCDate(windowStartDate.getUTCDate() - 6);
+  const windowEndDate = getTianjinLocalDate(windowEndIso);
+  const windowStartDate = shiftIsoDate(windowEndDate, -6);
   return summarizeManualSamplesInWindow(
     samples,
     communityId,
     segmentId,
     {
-      startAt: windowStartDate.getTime(),
+      startAt: getTianjinDayWindow(windowStartDate).startAt,
       endAt: windowEnd,
     },
   );
@@ -123,8 +148,8 @@ export function summarizeManualSamplesInDateRange(
     communityId,
     segmentId,
     {
-      startAt: Date.parse(`${windowStartDate}T00:00:00.000Z`),
-      endAt: Date.parse(`${windowEndDate}T23:59:59.999Z`),
+      startAt: getTianjinDayWindow(windowStartDate).startAt,
+      endAt: getTianjinDayWindow(windowEndDate).endAt,
     },
   );
 }

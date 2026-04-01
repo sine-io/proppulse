@@ -8,35 +8,35 @@ describe("lib/manual-input summarizeManualSamplesInDateRange", () => {
       {
         communityId: "yunshu-huayuan",
         segmentId: "2br-87-90",
-        sampleAt: "2026-03-24T23:59:59.999Z",
+        sampleAt: "2026-03-24T23:59:59.999+08:00",
         dealCount: 5,
         dealUnitPriceYuanPerSqm: 9_900,
       },
       {
         communityId: "yunshu-huayuan",
         segmentId: "2br-87-90",
-        sampleAt: "2026-03-25T00:00:00.000Z",
+        sampleAt: "2026-03-25T00:00:00.000+08:00",
         dealCount: 1,
         dealUnitPriceYuanPerSqm: 10_000,
       },
       {
         communityId: "yunshu-huayuan",
         segmentId: "2br-87-90",
-        sampleAt: "2026-03-31T23:59:59.999Z",
+        sampleAt: "2026-03-31T23:59:59.999+08:00",
         dealCount: 2,
         dealUnitPriceYuanPerSqm: 10_400,
       },
       {
         communityId: "yunshu-huayuan",
         segmentId: "2br-87-90",
-        sampleAt: "2026-04-01T00:00:00.000Z",
+        sampleAt: "2026-04-01T00:00:00.000+08:00",
         dealCount: 7,
         dealUnitPriceYuanPerSqm: 10_800,
       },
       {
         communityId: "other-community",
         segmentId: "2br-87-90",
-        sampleAt: "2026-03-29T12:00:00.000Z",
+        sampleAt: "2026-03-29T12:00:00.000+08:00",
         dealCount: 9,
         dealUnitPriceYuanPerSqm: 12_000,
       },
@@ -53,7 +53,54 @@ describe("lib/manual-input summarizeManualSamplesInDateRange", () => {
     ).toEqual({
       manualDealCount: 3,
       manualDealUnitPriceMedian: 10_200,
-      manualLatestSampleAt: "2026-03-31T23:59:59.999Z",
+      manualLatestSampleAt: "2026-03-31T23:59:59.999+08:00",
+    });
+  });
+
+  it("buckets samples by Tianjin local calendar day instead of raw UTC boundaries", () => {
+    const samples: ManualDealSample[] = [
+      {
+        communityId: "yunshu-huayuan",
+        segmentId: "2br-87-90",
+        sampleAt: "2026-03-30T23:55:00.000+08:00",
+        dealCount: 9,
+        dealUnitPriceYuanPerSqm: 9_900,
+      },
+      {
+        communityId: "yunshu-huayuan",
+        segmentId: "2br-87-90",
+        sampleAt: "2026-03-31T00:15:00.000+08:00",
+        dealCount: 1,
+        dealUnitPriceYuanPerSqm: 10_000,
+      },
+      {
+        communityId: "yunshu-huayuan",
+        segmentId: "2br-87-90",
+        sampleAt: "2026-03-31T23:50:00.000+08:00",
+        dealCount: 2,
+        dealUnitPriceYuanPerSqm: 10_200,
+      },
+      {
+        communityId: "yunshu-huayuan",
+        segmentId: "2br-87-90",
+        sampleAt: "2026-04-01T00:00:00.000+08:00",
+        dealCount: 7,
+        dealUnitPriceYuanPerSqm: 11_000,
+      },
+    ];
+
+    expect(
+      summarizeManualSamplesInDateRange(
+        samples,
+        "yunshu-huayuan",
+        "2br-87-90",
+        "2026-03-31",
+        "2026-03-31",
+      ),
+    ).toEqual({
+      manualDealCount: 3,
+      manualDealUnitPriceMedian: 10_100,
+      manualLatestSampleAt: "2026-03-31T23:50:00.000+08:00",
     });
   });
 

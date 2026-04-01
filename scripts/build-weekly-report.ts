@@ -87,7 +87,7 @@ function hasAggregatedObservations(window: AggregatedSegmentWindow): boolean {
   );
 }
 
-function buildWeeklySegmentWindow(
+function buildWeeklySegmentWindowFromAcceptedManualSamples(
   observations: SegmentWindowObservation[],
   manualSamples: Parameters<typeof summarizeManualSamplesInDateRange>[0],
   communityId: string,
@@ -95,8 +95,10 @@ function buildWeeklySegmentWindow(
   start: string,
   end: string,
 ): AggregatedSegmentWindow {
-  const { manualDealCount: _aggregatedManualDealCount, ...aggregatedWindow } =
+  const { manualDealCount: _storedSeriesManualDealCount, ...aggregatedWindow } =
     aggregateSegmentWindow(observations, start, end);
+  // Weekly reports intentionally recompute manual counts from the current
+  // accepted sample set so late-accepted backfills land in the correct window.
   const exactManualSummary = summarizeManualSamplesInDateRange(
     manualSamples,
     communityId,
@@ -182,7 +184,7 @@ async function main(): Promise<void> {
                 manualDealCount: entry.manualDealCount,
               }),
             );
-            const wMinus2 = buildWeeklySegmentWindow(
+            const wMinus2 = buildWeeklySegmentWindowFromAcceptedManualSamples(
               observations,
               manualSamples,
               community.id,
@@ -190,7 +192,7 @@ async function main(): Promise<void> {
               windows.wMinus2.start,
               windows.wMinus2.end,
             );
-            const wMinus1 = buildWeeklySegmentWindow(
+            const wMinus1 = buildWeeklySegmentWindowFromAcceptedManualSamples(
               observations,
               manualSamples,
               community.id,
@@ -198,7 +200,7 @@ async function main(): Promise<void> {
               windows.wMinus1.start,
               windows.wMinus1.end,
             );
-            const w0 = buildWeeklySegmentWindow(
+            const w0 = buildWeeklySegmentWindowFromAcceptedManualSamples(
               observations,
               manualSamples,
               community.id,

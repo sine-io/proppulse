@@ -371,6 +371,127 @@ describe("scripts/build-weekly-report.ts", () => {
     expect(segmentReport?.latest?.manualDealCount).toBe(1);
   });
 
+  it("recomputes weekly manual counts from current accepted samples instead of stored daily snapshots", () => {
+    const rootDir = makeTempRoot("build-weekly-report-backfill-");
+    const dataDir = resolve(rootDir, "data");
+
+    cpSync(resolve("data/config"), resolve(dataDir, "config"), { recursive: true });
+    mkdirSync(resolve(dataDir, "series", "city-market"), { recursive: true });
+    mkdirSync(
+      resolve(dataDir, "series", "communities", "yunshu-huayuan"),
+      { recursive: true },
+    );
+    mkdirSync(resolve(dataDir, "manual", "accepted"), { recursive: true });
+
+    writeFileSync(
+      resolve(dataDir, "series", "city-market", "tianjin.json"),
+      JSON.stringify(
+        {
+          city: "天津",
+          series: [
+            {
+              date: "2026-03-31",
+              generatedAt: "2026-03-31T00:00:00.000Z",
+              sourceMonth: "2026-02",
+              secondaryHomePriceIndexMom: 99.5,
+              secondaryHomePriceIndexYoy: 94,
+              verdict: "偏弱",
+            },
+          ],
+        },
+        null,
+        2,
+      ),
+    );
+
+    writeFileSync(
+      resolve(dataDir, "manual", "accepted", "samples.json"),
+      JSON.stringify(
+        {
+          source: "test",
+          submittedAt: "2026-03-31T12:00:00.000Z",
+          samples: [
+            {
+              communityId: "yunshu-huayuan",
+              segmentId: "2br-87-90",
+              sampleAt: "2026-03-31T00:15:00.000+08:00",
+              dealCount: 1,
+              dealUnitPriceYuanPerSqm: 10_000,
+            },
+          ],
+        },
+        null,
+        2,
+      ),
+    );
+
+    const dailySeries = [
+      ...[
+        "2026-03-25",
+        "2026-03-26",
+        "2026-03-27",
+        "2026-03-28",
+        "2026-03-29",
+        "2026-03-30",
+        "2026-03-31",
+      ].map((date) => ({
+        date,
+        generatedAt: `${date}T12:00:00.000Z`,
+        derivedFrom: "segment-teasers",
+        listingUnitPriceMedian: 10_000,
+        listingUnitPriceMin: 9_800,
+        listingsCount: 8,
+        suspectedDealCount: 1,
+        manualDealCount: 9,
+        manualDealUnitPriceMedian: null,
+        manualLatestSampleAt: null,
+      })),
+    ];
+
+    writeFileSync(
+      resolve(dataDir, "series", "communities", "yunshu-huayuan", "2br-87-90.json"),
+      JSON.stringify(
+        {
+          communityId: "yunshu-huayuan",
+          segmentId: "2br-87-90",
+          series: dailySeries,
+        },
+        null,
+        2,
+      ),
+    );
+
+    execFileSync(
+      TSX_PATH,
+      ["scripts/build-weekly-report.ts", "--data-dir", dataDir],
+      {
+        cwd: resolve("."),
+        stdio: "pipe",
+      },
+    );
+
+    const report = readJsonFile<{
+      communities: Record<
+        string,
+        {
+          segments: Record<
+            string,
+            {
+              latest: {
+                manualDealCount: number;
+              } | null;
+            }
+          >;
+        }
+      >;
+    }>(resolve(dataDir, "reports", "2026-03-31.json"));
+
+    const segmentReport =
+      report.communities["yunshu-huayuan"]?.segments["2br-87-90"];
+
+    expect(segmentReport?.latest?.manualDealCount).toBe(1);
+  });
+
   it("clears stale reports when there is no latest city-market date", () => {
     const rootDir = makeTempRoot("build-weekly-report-empty-");
     const dataDir = resolve(rootDir, "data");
