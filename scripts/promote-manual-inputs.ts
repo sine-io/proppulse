@@ -3,7 +3,10 @@ import { resolve } from "node:path";
 
 import { loadCommunities, loadSegments } from "../lib/config";
 import { DATA_DIR, resolveDataPaths } from "../lib/paths";
-import { validateManualInputFile } from "../lib/manual-input";
+import {
+  createSegmentIdByCommunityId,
+  validateManualInputFile,
+} from "../lib/manual-input";
 
 function parseCommandLineArguments(argv: string[]): { dataDir: string } {
   let dataDir = DATA_DIR;
@@ -29,12 +32,11 @@ function parseCommandLineArguments(argv: string[]): { dataDir: string } {
 async function main(): Promise<void> {
   const { dataDir } = parseCommandLineArguments(process.argv.slice(2));
   const paths = resolveDataPaths(dataDir);
-  const validCommunityIds = new Set(
-    loadCommunities(paths.communitiesConfigPath).map((community) => community.id),
-  );
-  const validSegmentIds = new Set(
-    loadSegments(paths.segmentsConfigPath).map((segment) => segment.id),
-  );
+  const communities = loadCommunities(paths.communitiesConfigPath);
+  const segments = loadSegments(paths.segmentsConfigPath, communities);
+  const validCommunityIds = new Set(communities.map((community) => community.id));
+  const validSegmentIds = new Set(segments.map((segment) => segment.id));
+  const segmentIdByCommunityId = createSegmentIdByCommunityId(segments);
 
   mkdirSync(paths.manualIncomingDir, { recursive: true });
   mkdirSync(paths.manualAcceptedDir, { recursive: true });
@@ -52,6 +54,7 @@ async function main(): Promise<void> {
         JSON.parse(readFileSync(sourcePath, "utf8")) as unknown,
         validCommunityIds,
         validSegmentIds,
+        segmentIdByCommunityId,
       );
       renameSync(sourcePath, targetPath);
     } catch (error) {

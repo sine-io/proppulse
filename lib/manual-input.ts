@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { z } from "zod";
 
 import { median } from "./metrics";
+import type { SegmentTemplate } from "./types";
 
 const isoDateTimeSchema = z.string().refine((value) => !Number.isNaN(Date.parse(value)), {
   message: "Expected an ISO-8601 datetime string",
@@ -50,6 +51,14 @@ interface MatchingManualDealSample {
   sampleAt: number;
 }
 
+export function createSegmentIdByCommunityId(
+  segments: readonly SegmentTemplate[],
+): ReadonlyMap<string, string> {
+  return new Map(
+    segments.map((segment) => [segment.communityId, segment.id] as const),
+  );
+}
+
 function readJsonFile(filePath: string): unknown {
   return JSON.parse(readFileSync(filePath, "utf8"));
 }
@@ -80,6 +89,7 @@ export function validateManualInputFile(
   value: unknown,
   validCommunityIds: ReadonlySet<string>,
   validSegmentIds: ReadonlySet<string>,
+  segmentIdByCommunityId?: ReadonlyMap<string, string>,
 ): ManualInputFile {
   const parsed = manualInputFileSchema.parse(value);
 
@@ -91,6 +101,17 @@ export function validateManualInputFile(
     if (!validSegmentIds.has(sample.segmentId)) {
       throw new Error(`Unknown segmentId: ${sample.segmentId}`);
     }
+
+    const expectedSegmentId = segmentIdByCommunityId?.get(sample.communityId);
+
+    if (
+      expectedSegmentId !== undefined &&
+      sample.segmentId !== expectedSegmentId
+    ) {
+      throw new Error(
+        `Segment ${sample.segmentId} does not belong to community ${sample.communityId}`,
+      );
+    }
   }
 
   return parsed;
@@ -100,6 +121,7 @@ export function loadAcceptedManualInputFiles(
   acceptedDir: string,
   validCommunityIds: ReadonlySet<string>,
   validSegmentIds: ReadonlySet<string>,
+  segmentIdByCommunityId?: ReadonlyMap<string, string>,
 ): ManualDealSample[] {
   return readdirSync(acceptedDir)
     .filter((entry) => entry.endsWith(".json"))
@@ -110,6 +132,7 @@ export function loadAcceptedManualInputFiles(
         readJsonFile(filePath),
         validCommunityIds,
         validSegmentIds,
+        segmentIdByCommunityId,
       );
 
       return parsed.samples;

@@ -9,10 +9,10 @@ body:
       description: Pick the monitored community that this sample belongs to.
       options:
         - 鸣泉花园 (mingquan-huayuan)
-        - 富力津门湖嘉郡花园 (jiajun-huayuan)
-        - 富力津门湖云舒花园 (yunshu-huayuan)
-        - 富力津门湖柏溪花园 (boxi-huayuan)
-        - 海逸长洲瀚波园 (haiyi-changzhou-hanboyuan)
+        - 柏溪花园 (boxi-huayuan)
+        - 恋海园 (lianhai-yuan)
+        - 万科东第 (wanke-dongdi)
+        - 谊景村 (yijing-cun)
     validations:
       required: true
   - type: dropdown
@@ -21,8 +21,11 @@ body:
       label: Segment
       description: Pick the monitored segment for this deal sample.
       options:
-        - 两居 87-90㎡ (2br-87-90)
-        - 三居 140-150㎡ (3br-140-150)
+        - 2居 87-90㎡ (mingquan-2br-87-90)
+        - 2居 100-120㎡ (boxi-2br-100-120)
+        - 2居 90-110㎡ (lianhai-2br-90-110)
+        - 3居 100-105㎡ (wanke-3br-100-105)
+        - 2居 75-90㎡ (yijing-2br-75-90)
     validations:
       required: true
   - type: input

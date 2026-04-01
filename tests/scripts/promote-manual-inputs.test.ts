@@ -65,7 +65,7 @@ describe("scripts/promote-manual-inputs.ts", () => {
     }
   });
 
-  it("moves valid incoming files into accepted and leaves invalid files in place with a logged error", () => {
+  it("moves valid incoming files into accepted and leaves mismatched pairs in place with a logged error", () => {
     const dataDir = makeTempDataDir();
     const repoManualBefore = snapshotTree(REPO_MANUAL_DIR);
 
@@ -77,8 +77,8 @@ describe("scripts/promote-manual-inputs.ts", () => {
           submittedAt: "2026-03-31T09:00:00.000Z",
           samples: [
             {
-              communityId: "yunshu-huayuan",
-              segmentId: "2br-87-90",
+              communityId: "mingquan-huayuan",
+              segmentId: "mingquan-2br-87-90",
               sampleAt: "2026-03-30T12:00:00.000Z",
               dealCount: 1,
               dealUnitPriceYuanPerSqm: 19_300,
@@ -98,8 +98,8 @@ describe("scripts/promote-manual-inputs.ts", () => {
           submittedAt: "2026-03-31T09:00:00.000Z",
           samples: [
             {
-              communityId: "missing-community",
-              segmentId: "2br-87-90",
+              communityId: "mingquan-huayuan",
+              segmentId: "boxi-2br-100-120",
               sampleAt: "2026-03-30T12:00:00.000Z",
               dealCount: 1,
               dealUnitPriceYuanPerSqm: 19_300,
@@ -133,5 +133,8 @@ describe("scripts/promote-manual-inputs.ts", () => {
       true,
     );
     expect(result.stderr).toContain("invalid.json");
+    expect(result.stderr).toContain(
+      "Segment boxi-2br-100-120 does not belong to community mingquan-huayuan",
+    );
   }, 15_000);
 });

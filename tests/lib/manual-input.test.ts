@@ -1,6 +1,96 @@
 import { describe, expect, it } from "vitest";
 
-import { summarizeManualSamplesInDateRange, type ManualDealSample } from "../../lib/manual-input";
+import {
+  summarizeManualSamplesInDateRange,
+  type ManualDealSample,
+  validateManualInputFile,
+} from "../../lib/manual-input";
+
+const VALID_COMMUNITY_IDS = new Set([
+  "mingquan-huayuan",
+  "boxi-huayuan",
+  "lianhai-yuan",
+  "wanke-dongdi",
+  "yijing-cun",
+]);
+
+const VALID_SEGMENT_IDS = new Set([
+  "mingquan-2br-87-90",
+  "boxi-2br-100-120",
+  "lianhai-2br-90-110",
+  "wanke-3br-100-105",
+  "yijing-2br-75-90",
+]);
+
+const SEGMENT_ID_BY_COMMUNITY_ID = new Map([
+  ["mingquan-huayuan", "mingquan-2br-87-90"],
+  ["boxi-huayuan", "boxi-2br-100-120"],
+  ["lianhai-yuan", "lianhai-2br-90-110"],
+  ["wanke-dongdi", "wanke-3br-100-105"],
+  ["yijing-cun", "yijing-2br-75-90"],
+]);
+
+describe("lib/manual-input validateManualInputFile", () => {
+  it("accepts a manual sample only when the segment belongs to the same community", () => {
+    expect(
+      validateManualInputFile(
+        {
+          source: "fixture-test",
+          submittedAt: "2026-03-31T09:00:00.000Z",
+          samples: [
+            {
+              communityId: "mingquan-huayuan",
+              segmentId: "mingquan-2br-87-90",
+              sampleAt: "2026-03-30T12:00:00.000Z",
+              dealCount: 1,
+              dealUnitPriceYuanPerSqm: 19_300,
+            },
+          ],
+        },
+        VALID_COMMUNITY_IDS,
+        VALID_SEGMENT_IDS,
+        SEGMENT_ID_BY_COMMUNITY_ID,
+      ),
+    ).toEqual({
+      source: "fixture-test",
+      submittedAt: "2026-03-31T09:00:00.000Z",
+      samples: [
+        {
+          communityId: "mingquan-huayuan",
+          segmentId: "mingquan-2br-87-90",
+          sampleAt: "2026-03-30T12:00:00.000Z",
+          dealCount: 1,
+          dealUnitPriceYuanPerSqm: 19_300,
+        },
+      ],
+    });
+  });
+
+  it("rejects mismatched community and segment pairs", () => {
+    expect(() =>
+      validateManualInputFile(
+        {
+          source: "fixture-test",
+          submittedAt: "2026-03-31T09:00:00.000Z",
+          samples: [
+            {
+              communityId: "mingquan-huayuan",
+              segmentId: "boxi-2br-100-120",
+              sampleAt: "2026-03-30T12:00:00.000Z",
+              dealCount: 1,
+              dealUnitPriceYuanPerSqm: 19_300,
+            },
+          ],
+        },
+        VALID_COMMUNITY_IDS,
+        VALID_SEGMENT_IDS,
+        SEGMENT_ID_BY_COMMUNITY_ID,
+      ),
+    ).toThrow(
+      "Segment boxi-2br-100-120 does not belong to community mingquan-huayuan",
+    );
+  });
+});
 
 describe("lib/manual-input summarizeManualSamplesInDateRange", () => {
   it("includes samples exactly on the start and end boundaries and excludes samples outside the range", () => {

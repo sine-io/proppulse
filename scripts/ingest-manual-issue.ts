@@ -2,7 +2,10 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { loadCommunities, loadSegments } from "../lib/config";
-import { validateManualInputFile } from "../lib/manual-input";
+import {
+  createSegmentIdByCommunityId,
+  validateManualInputFile,
+} from "../lib/manual-input";
 import { DATA_DIR, resolveDataPaths } from "../lib/paths";
 
 interface CommandLineArguments {
@@ -184,12 +187,11 @@ async function main(): Promise<void> {
   }
 
   const paths = resolveDataPaths(dataDir);
-  const validCommunityIds = new Set(
-    loadCommunities(paths.communitiesConfigPath).map((community) => community.id),
-  );
-  const validSegmentIds = new Set(
-    loadSegments(paths.segmentsConfigPath).map((segment) => segment.id),
-  );
+  const communities = loadCommunities(paths.communitiesConfigPath);
+  const segments = loadSegments(paths.segmentsConfigPath, communities);
+  const validCommunityIds = new Set(communities.map((community) => community.id));
+  const validSegmentIds = new Set(segments.map((segment) => segment.id));
+  const segmentIdByCommunityId = createSegmentIdByCommunityId(segments);
   const issue = readIssuePayload(resolve(resolvedEventPath));
   const sections = parseIssueSections(issue.body);
   const communityId = extractIdentifier(
@@ -221,6 +223,7 @@ async function main(): Promise<void> {
     },
     validCommunityIds,
     validSegmentIds,
+    segmentIdByCommunityId,
   );
 
   mkdirSync(paths.manualIncomingDir, { recursive: true });
