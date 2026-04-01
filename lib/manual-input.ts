@@ -41,6 +41,11 @@ interface ManualSampleWindow {
   endAt: number;
 }
 
+interface MatchingManualDealSample {
+  sample: ManualDealSample;
+  sampleAt: number;
+}
+
 function readJsonFile(filePath: string): unknown {
   return JSON.parse(readFileSync(filePath, "utf8"));
 }
@@ -130,13 +135,17 @@ function summarizeManualSamplesInWindow(
   segmentId: string,
   window: ManualSampleWindow,
 ): ManualSampleSummary {
-  const matchingSamples = samples.filter((sample) => {
+  const matchingSamples: MatchingManualDealSample[] = samples.flatMap((sample) => {
     if (sample.communityId !== communityId || sample.segmentId !== segmentId) {
-      return false;
+      return [];
     }
 
     const sampleAt = Date.parse(sample.sampleAt);
-    return sampleAt >= window.startAt && sampleAt <= window.endAt;
+    if (sampleAt < window.startAt || sampleAt > window.endAt) {
+      return [];
+    }
+
+    return [{ sample, sampleAt }];
   });
 
   if (matchingSamples.length === 0) {
@@ -147,19 +156,18 @@ function summarizeManualSamplesInWindow(
     };
   }
 
-  const manualLatestSampleAt = matchingSamples
-    .map((sample) => sample.sampleAt)
-    .sort()
-    .at(-1);
+  const latestSample = matchingSamples.reduce((latest, current) =>
+    current.sampleAt > latest.sampleAt ? current : latest,
+  );
 
   return {
     manualDealCount: matchingSamples.reduce(
-      (total, sample) => total + sample.dealCount,
+      (total, { sample }) => total + sample.dealCount,
       0,
     ),
     manualDealUnitPriceMedian: median(
-      matchingSamples.map((sample) => sample.dealUnitPriceYuanPerSqm),
+      matchingSamples.map(({ sample }) => sample.dealUnitPriceYuanPerSqm),
     ),
-    manualLatestSampleAt: manualLatestSampleAt ?? null,
+    manualLatestSampleAt: latestSample.sample.sampleAt,
   };
 }

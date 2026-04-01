@@ -87,6 +87,30 @@ function hasAggregatedObservations(window: AggregatedSegmentWindow): boolean {
   );
 }
 
+function buildWeeklySegmentWindow(
+  observations: SegmentWindowObservation[],
+  manualSamples: Parameters<typeof summarizeManualSamplesInDateRange>[0],
+  communityId: string,
+  segmentId: string,
+  start: string,
+  end: string,
+): AggregatedSegmentWindow {
+  const { manualDealCount: _aggregatedManualDealCount, ...aggregatedWindow } =
+    aggregateSegmentWindow(observations, start, end);
+  const exactManualSummary = summarizeManualSamplesInDateRange(
+    manualSamples,
+    communityId,
+    segmentId,
+    start,
+    end,
+  );
+
+  return {
+    ...aggregatedWindow,
+    manualDealCount: exactManualSummary.manualDealCount,
+  };
+}
+
 async function main(): Promise<void> {
   const { dataDir } = parseCommandLineArguments(process.argv.slice(2));
   const paths = resolveDataPaths(dataDir);
@@ -158,66 +182,38 @@ async function main(): Promise<void> {
                 manualDealCount: entry.manualDealCount,
               }),
             );
-            const wMinus2 = aggregateSegmentWindow(
+            const wMinus2 = buildWeeklySegmentWindow(
               observations,
-              windows.wMinus2.start,
-              windows.wMinus2.end,
-            );
-            const wMinus1 = aggregateSegmentWindow(
-              observations,
-              windows.wMinus1.start,
-              windows.wMinus1.end,
-            );
-            const w0 = aggregateSegmentWindow(
-              observations,
-              windows.w0.start,
-              windows.w0.end,
-            );
-            const wMinus2ManualSummary = summarizeManualSamplesInDateRange(
               manualSamples,
               community.id,
               segment.id,
               windows.wMinus2.start,
               windows.wMinus2.end,
             );
-            const wMinus1ManualSummary = summarizeManualSamplesInDateRange(
+            const wMinus1 = buildWeeklySegmentWindow(
+              observations,
               manualSamples,
               community.id,
               segment.id,
               windows.wMinus1.start,
               windows.wMinus1.end,
             );
-            const w0ManualSummary = summarizeManualSamplesInDateRange(
+            const w0 = buildWeeklySegmentWindow(
+              observations,
               manualSamples,
               community.id,
               segment.id,
               windows.w0.start,
               windows.w0.end,
             );
-            const wMinus2WithExactManual = {
-              ...wMinus2,
-              manualDealCount: wMinus2ManualSummary.manualDealCount,
-            };
-            const wMinus1WithExactManual = {
-              ...wMinus1,
-              manualDealCount: wMinus1ManualSummary.manualDealCount,
-            };
-            const w0WithExactManual = {
-              ...w0,
-              manualDealCount: w0ManualSummary.manualDealCount,
-            };
 
             return [
               segment.id,
               {
                 label: segment.label,
-                verdict: getSegmentVerdict([
-                  wMinus2WithExactManual,
-                  wMinus1WithExactManual,
-                  w0WithExactManual,
-                ]),
-                latest: hasAggregatedObservations(w0WithExactManual)
-                  ? w0WithExactManual
+                verdict: getSegmentVerdict([wMinus2, wMinus1, w0]),
+                latest: hasAggregatedObservations(w0)
+                  ? w0
                   : null,
               },
             ];
