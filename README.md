@@ -14,11 +14,13 @@ The GitHub workflows in [`.github/workflows/collect.yml`](.github/workflows/coll
 
 ## Local Commands
 
-Install dependencies:
+Install dependencies for local development:
 
 ```bash
 npm ci
 ```
+
+GitHub Actions workflows intentionally use a pnpm-backed install path for runner stability (`npm install -g pnpm@9` followed by `pnpm install --no-frozen-lockfile`). Keep using `npm ci` locally unless you are specifically reproducing the CI environment.
 
 Run the core checks:
 
