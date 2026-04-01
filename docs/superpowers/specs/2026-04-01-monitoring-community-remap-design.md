@@ -305,6 +305,14 @@
 - 它们仍然保留在 series / report / frontend 的小区列表中
 - 前端统一显示“待复核”
 
+一期的 canonical 数据契约：
+
+- `communities.json` 中的 `community.status` 是 `pending_verification` 的唯一来源
+- 这些小区允许继续录入手工补样
+- 手工补样允许进入 `data/series` 与 weekly report 的聚合计算
+- 但前端在展示层面仍优先以 `community.status === "pending_verification"` 显示“待复核”，不把它表述成“已验证自动监控结果”
+- 前端不能仅因为存在 `series` / `report` 数据就把它们当作已验证来源
+
 ### 6.3 手工补样
 
 手工补样仍然保留，并且对弱源小区更重要。
@@ -352,13 +360,18 @@
    - `.github/ISSUE_TEMPLATE/manual-sample.yml` 的 community/segment 下拉项与新配置同步
    - 手工补样仍能写入正确的小区与 segment
 
+5. 待复核展示测试
+   - `pending_verification` 小区即使已有手工补样聚合结果，前端仍优先显示“待复核”
+   - 前端不会因为 `series` / `report` 数据存在就把待复核小区表述为“已验证自动监控结果”
+
 ## 9. 风险与应对
 
 ### 风险 1：来源映射错误
 
 应对：
 
-- 在实现阶段先复核 `恋海园`、`万科东第`、`谊景村` 的真实公开源
+- 二期再复核 `恋海园`、`万科东第`、`谊景村` 的真实公开源
+- 一期只确保未验证来源不误采
 - 未确认前不启用自动采集
 
 ### 风险 2：前端仍假定“两个固定 segment”
