@@ -10,6 +10,7 @@ on:
       - "data/config/**"
       - "data/series/**"
       - "data/reports/**"
+  workflow_dispatch:
 
 permissions:
   contents: read
