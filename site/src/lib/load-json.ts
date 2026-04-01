@@ -1,4 +1,8 @@
-import type { Community, SegmentTemplate } from "../../../lib/types";
+import type {
+  Community,
+  CommunityStatus,
+  SegmentTemplate,
+} from "../../../lib/types";
 
 export type CityMarketVerdict = "偏强" | "中性" | "偏弱";
 export type SegmentVerdict =
@@ -82,6 +86,10 @@ export interface DashboardData {
   communitySeries: Record<string, Record<string, CommunitySegmentSeriesFile>>;
 }
 
+type CommunityConfigEntry = Omit<Community, "status"> & {
+  status?: CommunityStatus;
+};
+
 function resolvePublicPath(path: string): string {
   const normalized = path.replace(/^\/+/, "");
   return `${import.meta.env.BASE_URL}${normalized}`;
@@ -127,12 +135,20 @@ function makeEmptySeriesFile(
   };
 }
 
+function normalizeCommunityStatus(status?: CommunityStatus): CommunityStatus {
+  return status === "pending_verification" ? "pending_verification" : "active";
+}
+
 export async function loadDashboardData(): Promise<DashboardData> {
   const [communities, segments, cityMarket] = await Promise.all([
-    loadJson<Community[]>("data/config/communities.json"),
+    loadJson<CommunityConfigEntry[]>("data/config/communities.json"),
     loadJson<SegmentTemplate[]>("data/config/segments.json"),
     loadJson<CityMarketSeriesFile>("data/series/city-market/tianjin.json"),
   ]);
+  const normalizedCommunities = communities.map((community) => ({
+    ...community,
+    status: normalizeCommunityStatus(community.status),
+  }));
 
   const latestDate = cityMarket.series.at(-1)?.date;
   const latestReport = latestDate
@@ -140,23 +156,29 @@ export async function loadDashboardData(): Promise<DashboardData> {
     : null;
 
   const communitySeriesEntries = await Promise.all(
-    communities.map(async (community) => [
-      community.id,
-      Object.fromEntries(
-        await Promise.all(
-          segments.map(async (segment) => [
-            segment.id,
-            (await loadOptionalJson<CommunitySegmentSeriesFile>(
-              `data/series/communities/${community.id}/${segment.id}.json`,
-            )) ?? makeEmptySeriesFile(community, segment),
-          ]),
+    normalizedCommunities.map(async (community) => {
+      const communitySegments = segments.filter(
+        (segment) => segment.communityId === community.id,
+      );
+
+      return [
+        community.id,
+        Object.fromEntries(
+          await Promise.all(
+            communitySegments.map(async (segment) => [
+              segment.id,
+              (await loadOptionalJson<CommunitySegmentSeriesFile>(
+                `data/series/communities/${community.id}/${segment.id}.json`,
+              )) ?? makeEmptySeriesFile(community, segment),
+            ]),
+          ),
         ),
-      ),
-    ]),
+      ] as const;
+    }),
   );
 
   return {
-    communities,
+    communities: normalizedCommunities,
     segments,
     cityMarket,
     latestReport,

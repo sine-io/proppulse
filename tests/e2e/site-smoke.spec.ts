@@ -14,18 +14,33 @@ test("shows the built dashboard smoke path on mobile", async ({ page }) => {
 
   await expect(page.getByTestId("market-card")).toBeVisible();
 
-  const mingquanSegmentCard = page
-    .getByTestId("segment-grid")
-    .locator(".segment-card")
-    .filter({ hasText: "鸣泉花园" })
-    .first();
+  const segmentGrid = page.getByTestId("segment-grid");
+  await expect(segmentGrid.locator(".segment-card")).toHaveCount(1);
+
+  const mingquanSegmentCard = segmentGrid.locator(".segment-card").first();
 
   await expect(mingquanSegmentCard).toBeVisible();
   await expect(
     mingquanSegmentCard.getByRole("heading", {
-      name: "两居 87-90㎡",
+      name: "2居 87-90㎡",
     }),
   ).toBeVisible();
+  await expect(mingquanSegmentCard).toContainText("鸣泉花园");
+
+  await mingquanSegmentCard
+    .getByRole("button", { name: "查看 2居 87-90㎡ 详情" })
+    .click();
+
+  const comparisonView = page.getByTestId("comparison-communities");
+  await expect(comparisonView).toContainText("柏溪花园");
+  await expect(comparisonView).toContainText("恋海园");
+  await expect(comparisonView).toContainText("万科东第");
+  await expect(comparisonView).toContainText("谊景村");
+  await expect(comparisonView).toContainText("2居 100-120㎡");
+  await expect(comparisonView).toContainText("2居 90-110㎡");
+  await expect(comparisonView).toContainText("3居 100-105㎡");
+  await expect(comparisonView).toContainText("2居 75-90㎡");
+  await expect(comparisonView).toContainText("待复核");
 
   await expect(page.getByRole("link", { name: "新增一条样本" })).toBeVisible();
 });

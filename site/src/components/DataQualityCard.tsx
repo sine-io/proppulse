@@ -2,8 +2,10 @@ import type {
   CommunitySegmentSeriesEntry,
   WeeklyReportLatestSnapshot,
 } from "../lib/load-json";
+import type { CommunityStatus } from "../../../lib/types";
 
 interface DataQualityCardProps {
+  communityStatus: CommunityStatus;
   latest: WeeklyReportLatestSnapshot | null;
   latestSeriesEntry: CommunitySegmentSeriesEntry | null;
 }
@@ -17,6 +19,7 @@ function formatDateTime(value: string | null | undefined): string {
 }
 
 export default function DataQualityCard({
+  communityStatus,
   latest,
   latestSeriesEntry,
 }: DataQualityCardProps): React.JSX.Element {
@@ -33,6 +36,10 @@ export default function DataQualityCard({
   }
 
   const warnings: string[] = [];
+
+  if (communityStatus === "pending_verification") {
+    warnings.push("该小区来源待复核，当前样本仅供人工校对。");
+  }
 
   if ((latest?.listingsCount ?? latestSeriesEntry?.listingsCount ?? 0) < 3) {
     warnings.push("挂牌样本低于 3 套，当前结论稳定性不足。");

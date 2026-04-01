@@ -25,6 +25,9 @@ interface AnomalyItem {
   detail: string;
 }
 
+type CommunityRecord = DashboardData["communities"][number];
+type CommunitySegmentRecord = DashboardData["segments"][number];
+
 function formatPrice(value: number | null | undefined): string {
   if (value === null || value === undefined) {
     return "暂无";
@@ -116,6 +119,31 @@ function countInsufficientSegments(
   return segments.filter((segment) => segment.verdict === "样本不足").length;
 }
 
+function getCommunitySegments(
+  data: DashboardData,
+  communityId: string,
+): CommunitySegmentRecord[] {
+  return data.segments.filter((segment) => segment.communityId === communityId);
+}
+
+function getPrimarySegment(
+  data: DashboardData,
+  communityId: string,
+): CommunitySegmentRecord | null {
+  return getCommunitySegments(data, communityId)[0] ?? null;
+}
+
+function getDisplayVerdict(
+  community: CommunityRecord,
+  verdict: string | null | undefined,
+): string {
+  if (community.status === "pending_verification") {
+    return "待复核";
+  }
+
+  return verdict ?? "待补齐";
+}
+
 export default function App({
   loader = loadDashboardData,
   issueFormUrl = DEFAULT_ISSUE_FORM_URL,
@@ -200,7 +228,7 @@ export default function App({
   }
 
   const primaryReport = data.latestReport?.communities[primaryCommunity.id] ?? null;
-  const primarySegments = data.segments.map((segment) => {
+  const primarySegments = getCommunitySegments(data, primaryCommunity.id).map((segment) => {
     const snapshot = primaryReport?.segments[segment.id] ?? null;
     const latestEntry =
       data.communitySeries[primaryCommunity.id]?.[segment.id]?.series.at(-1) ?? null;
@@ -208,7 +236,7 @@ export default function App({
     return {
       segment,
       segmentLabel: segment.label,
-      verdict: snapshot?.verdict ?? null,
+      verdict: getDisplayVerdict(primaryCommunity, snapshot?.verdict),
       latest: snapshot?.latest ?? null,
       latestEntry,
     };
@@ -228,6 +256,31 @@ export default function App({
   );
   const selectedSegment =
     primarySegments.find((segment) => segment.segment.id === selectedSegmentId) ?? null;
+  const comparisonCommunities = data.communities
+    .filter((community) => community.id !== primaryCommunity.id)
+    .map((community) => {
+      const primarySegment = getPrimarySegment(data, community.id);
+      const snapshot = primarySegment
+        ? data.latestReport?.communities[community.id]?.segments[primarySegment.id] ?? null
+        : null;
+      const latestEntry = primarySegment
+        ? data.communitySeries[community.id]?.[primarySegment.id]?.series.at(-1) ?? null
+        : null;
+
+      return {
+        id: community.id,
+        name: community.name,
+        district: community.district,
+        segmentLabel: primarySegment?.label ?? snapshot?.label ?? "待补齐",
+        verdict: getDisplayVerdict(community, snapshot?.verdict),
+        latestPrice:
+          snapshot?.latest?.listingUnitPriceMedian ??
+          latestEntry?.listingUnitPriceMedian ??
+          null,
+        listingsCount:
+          snapshot?.latest?.listingsCount ?? latestEntry?.listingsCount ?? null,
+      };
+    });
 
   return (
     <main className="app-shell">
@@ -243,31 +296,8 @@ export default function App({
         {selectedSegment ? (
           <DetailView
             communityName={primaryCommunity.name}
-            comparisonCommunities={data.communities
-              .filter((community) => community.id !== primaryCommunity.id)
-              .map((community) => {
-                const snapshot =
-                  data.latestReport?.communities[community.id]?.segments[
-                    selectedSegment.segment.id
-                  ] ?? null;
-                const latestEntry =
-                  data.communitySeries[community.id]?.[selectedSegment.segment.id]?.series.at(
-                    -1,
-                  ) ?? null;
-
-                return {
-                  id: community.id,
-                  name: community.name,
-                  district: community.district,
-                  verdict: snapshot?.verdict ?? null,
-                  latestPrice:
-                    snapshot?.latest?.listingUnitPriceMedian ??
-                    latestEntry?.listingUnitPriceMedian ??
-                    null,
-                  listingsCount:
-                    snapshot?.latest?.listingsCount ?? latestEntry?.listingsCount ?? null,
-                };
-              })}
+            communityStatus={primaryCommunity.status}
+            comparisonCommunities={comparisonCommunities}
             issueFormUrl={issueFormUrl}
             latest={selectedSegment.latest}
             latestSeriesEntry={selectedSegment.latestEntry}
@@ -308,18 +338,25 @@ export default function App({
             </div>
 
             <section className="panel">
-              <div className="section-title">
-                <div>
-                  <div className="eyebrow">监控户型</div>
-                  <h2>{primaryCommunity.name}</h2>
-                </div>
-                <p className="muted">两张卡片分别对应当前关注的两个主力户型。</p>
+                <div className="section-title">
+                  <div>
+                    <div className="eyebrow">监控户型</div>
+                    <h2>{primaryCommunity.name}</h2>
+                  </div>
+                  <p className="muted">
+                    {primarySegments.length === 1
+                      ? "当前主小区只保留 1 张主力户型卡片。"
+                      : `当前主小区展示 ${primarySegments.length} 张主力户型卡片。`}
+                  </p>
               </div>
               <div className="segment-grid" data-testid="segment-grid">
                 {primarySegments.map((segment) => (
                   <SegmentCard
                     key={segment.segment.id}
                     communityName={primaryCommunity.name}
+                    isPendingVerification={
+                      primaryCommunity.status === "pending_verification"
+                    }
                     latestEntry={segment.latestEntry}
                     onSelect={() =>
                       startTransition(() => {
@@ -330,6 +367,7 @@ export default function App({
                     snapshot={
                       primaryReport?.segments[segment.segment.id] ?? null
                     }
+                    verdictLabel={segment.verdict ?? "待补齐"}
                   />
                 ))}
               </div>

@@ -8,6 +8,8 @@ interface SegmentCardProps {
   segmentLabel: string;
   snapshot: WeeklyReportSegmentSnapshot | null;
   latestEntry: CommunitySegmentSeriesEntry | null;
+  verdictLabel: string;
+  isPendingVerification: boolean;
   onSelect: () => void;
 }
 
@@ -24,6 +26,8 @@ export default function SegmentCard({
   segmentLabel,
   snapshot,
   latestEntry,
+  verdictLabel,
+  isPendingVerification,
   onSelect,
 }: SegmentCardProps): React.JSX.Element {
   const latest = snapshot?.latest ?? null;
@@ -32,7 +36,7 @@ export default function SegmentCard({
     <article className="card segment-card">
       <div className="segment-meta">
         <p className="segment-community">{communityName}</p>
-        <span className="segment-verdict">{snapshot?.verdict ?? "待补齐"}</span>
+        <span className="segment-verdict">{verdictLabel}</span>
       </div>
       <h3>{segmentLabel}</h3>
       <p className="segment-price">
@@ -51,7 +55,9 @@ export default function SegmentCard({
         </div>
       </dl>
       <p className="muted">
-        {latest
+        {isPendingVerification
+          ? "来源待复核，当前摘要仅供人工核对。"
+          : latest
           ? latest.listingsCount > 0
             ? `最新样本 ${latest.listingsCount} 套，适合继续跟踪。`
             : "当前挂牌样本为 0 套，建议补样或等待新周期。"

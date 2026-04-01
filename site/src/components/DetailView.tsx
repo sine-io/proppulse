@@ -7,11 +7,13 @@ import type {
   CommunitySegmentSeriesFile,
   WeeklyReportLatestSnapshot,
 } from "../lib/load-json";
+import type { CommunityStatus } from "../../../lib/types";
 
 interface ComparisonCommunity {
   id: string;
   name: string;
   district: string;
+  segmentLabel: string;
   verdict: string | null;
   latestPrice: number | null;
   listingsCount: number | null;
@@ -19,6 +21,7 @@ interface ComparisonCommunity {
 
 interface DetailViewProps {
   communityName: string;
+  communityStatus: CommunityStatus;
   segmentLabel: string;
   verdict: string | null;
   latest: WeeklyReportLatestSnapshot | null;
@@ -39,11 +42,24 @@ function formatPrice(value: number | null | undefined): string {
 
 function buildConclusionText(
   communityName: string,
+  communityStatus: CommunityStatus,
   segmentLabel: string,
   verdict: string | null,
   latest: WeeklyReportLatestSnapshot | null,
   latestSeriesEntry: CommunitySegmentSeriesEntry | null,
 ): string {
+  const latestSnapshot = latest ?? latestSeriesEntry;
+
+  if (communityStatus === "pending_verification") {
+    if (!latestSnapshot) {
+      return `${communityName} ${segmentLabel} 当前状态为待复核，等待下一次周报构建后再补充摘要。`;
+    }
+
+    return `${communityName} ${segmentLabel} 当前状态为待复核，暂不作为已验证自动监控结论展示。最新挂牌中位价 ${formatPrice(
+      latestSnapshot.listingUnitPriceMedian,
+    )}，挂牌 ${latestSnapshot.listingsCount} 套，疑似成交 ${latestSnapshot.suspectedDealCount} 套。`;
+  }
+
   if (latest) {
     return `${communityName} ${segmentLabel} 当前判定为${verdict ?? "待观察"}，最新挂牌中位价 ${formatPrice(
       latest.listingUnitPriceMedian,
@@ -61,6 +77,7 @@ function buildConclusionText(
 
 export default function DetailView({
   communityName,
+  communityStatus,
   segmentLabel,
   verdict,
   latest,
@@ -72,6 +89,7 @@ export default function DetailView({
 }: DetailViewProps): React.JSX.Element {
   const conclusionText = buildConclusionText(
     communityName,
+    communityStatus,
     segmentLabel,
     verdict,
     latest,
@@ -101,16 +119,25 @@ export default function DetailView({
         <TrendChart series={seriesFile?.series ?? []} segmentLabel={segmentLabel} />
       </section>
 
-      <DataQualityCard latest={latest} latestSeriesEntry={latestSeriesEntry} />
+      <DataQualityCard
+        communityStatus={communityStatus}
+        latest={latest}
+        latestSeriesEntry={latestSeriesEntry}
+      />
 
       <section className="card" data-testid="comparison-communities">
         <div className="eyebrow">横向对比</div>
-        <h3>另外 4 个监控小区</h3>
+        <h3>另外 {comparisonCommunities.length} 个监控小区</h3>
         <ul className="comparison-list">
           {comparisonCommunities.map((community) => (
-            <li key={community.id} className="comparison-row">
+            <li
+              key={community.id}
+              className="comparison-row"
+              data-testid={`comparison-community-${community.id}`}
+            >
               <div>
                 <strong>{community.name}</strong>
+                <p className="muted">{community.segmentLabel}</p>
                 <p className="muted">{community.district}</p>
               </div>
               <div className="comparison-metrics">
