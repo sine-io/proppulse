@@ -44,24 +44,42 @@ export const communitySchema = z
   })
   .strict()
   .superRefine((community, context) => {
-    if (community.status !== "active") {
+    if (community.status === "active") {
+      if (community.sources.fangCommunityUrl === null) {
+        context.addIssue({
+          code: "custom",
+          message:
+            "Active communities must define a non-null fangCommunityUrl",
+          path: ["sources", "fangCommunityUrl"],
+        });
+      }
+
+      if (community.sources.fangWeekreportUrl === null) {
+        context.addIssue({
+          code: "custom",
+          message:
+            "Active communities must define a non-null fangWeekreportUrl",
+          path: ["sources", "fangWeekreportUrl"],
+        });
+      }
+
       return;
     }
 
-    if (community.sources.fangCommunityUrl === null) {
+    if (community.sources.fangCommunityUrl !== null) {
       context.addIssue({
         code: "custom",
         message:
-          "Active communities must define a non-null fangCommunityUrl",
+          "Pending-verification communities must define a null fangCommunityUrl",
         path: ["sources", "fangCommunityUrl"],
       });
     }
 
-    if (community.sources.fangWeekreportUrl === null) {
+    if (community.sources.fangWeekreportUrl !== null) {
       context.addIssue({
         code: "custom",
         message:
-          "Active communities must define a non-null fangWeekreportUrl",
+          "Pending-verification communities must define a null fangWeekreportUrl",
         path: ["sources", "fangWeekreportUrl"],
       });
     }

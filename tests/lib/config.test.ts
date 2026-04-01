@@ -153,6 +153,24 @@ describe("loadCommunities", () => {
     ]);
   });
 
+  it("rejects pending-verification communities with live Fang source URLs", () => {
+    const fixturePath = writeJsonFixture("communities.json", [
+      {
+        id: "pending-with-live-fang-url",
+        name: "待核验社区",
+        city: "天津",
+        district: "待确认",
+        status: "pending_verification",
+        sources: {
+          fangCommunityUrl: "https://example.com/community",
+          fangWeekreportUrl: null,
+        },
+      },
+    ]);
+
+    expect(() => loadCommunities(fixturePath)).toThrow(/fang.*url|pending/i);
+  });
+
   it("rejects active communities with null Fang source URLs", () => {
     const fixturePath = writeJsonFixture("communities.json", [
       {
