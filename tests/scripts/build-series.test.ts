@@ -396,4 +396,34 @@ describe("scripts/build-series.ts", () => {
     );
     expect(existsSync(resolve(publicDataDir, "latest-report.json"))).toBe(false);
   }, 15_000);
+
+  it("rejects accepted manual samples whose segment does not belong to the community", () => {
+    const workspace = makeWorkspace();
+
+    collectFixturesIntoRuns(workspace);
+    writeFileSync(
+      resolve(workspace.dataDir, "manual", "accepted", "invalid-sample.json"),
+      JSON.stringify(
+        {
+          source: "fixture-test",
+          submittedAt: "2026-03-31T09:00:00.000Z",
+          samples: [
+            {
+              communityId: "mingquan-huayuan",
+              segmentId: "wanke-2br-85-90",
+              sampleAt: "2026-03-30T12:00:00.000Z",
+              dealCount: 1,
+              dealUnitPriceYuanPerSqm: 22_700,
+            },
+          ],
+        },
+        null,
+        2,
+      ),
+    );
+
+    expect(() =>
+      runScript("scripts/build-series.ts", "--data-dir", workspace.dataDir),
+    ).toThrowError(/does not belong to community/i);
+  });
 });
