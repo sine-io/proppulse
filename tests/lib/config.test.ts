@@ -200,6 +200,28 @@ describe("loadCommunities", () => {
     );
   });
 
+  it("rejects active fang-mobile communities with a live Anjuke search URL", () => {
+    const fixturePath = writeJsonFixture("communities.json", [
+      {
+        id: "invalid-fang-provider-anjuke-url",
+        name: "房天下来源混入安居客链接",
+        city: "天津",
+        district: "西青",
+        status: "active",
+        sourceProvider: "fang_mobile",
+        sources: {
+          fangCommunityUrl: "https://example.com/community",
+          fangWeekreportUrl: "https://example.com/community/weekreport",
+          anjukeSaleSearchUrl: "https://example.com/anjuke-search",
+        },
+      },
+    ]);
+
+    expect(() => loadCommunities(fixturePath)).toThrow(
+      /anjukeSaleSearchUrl|sourceProvider|active/i,
+    );
+  });
+
   it("rejects active anjuke communities without an Anjuke search URL", () => {
     const fixturePath = writeJsonFixture("communities.json", [
       {
@@ -241,6 +263,28 @@ describe("loadCommunities", () => {
 
     expect(() => loadCommunities(fixturePath)).toThrow(
       /pending|sourceProvider|none/i,
+    );
+  });
+
+  it("rejects pending-verification none communities with a live Anjuke search URL", () => {
+    const fixturePath = writeJsonFixture("communities.json", [
+      {
+        id: "invalid-pending-anjuke-url",
+        name: "待核验来源混入安居客链接",
+        city: "天津",
+        district: "待确认",
+        status: "pending_verification",
+        sourceProvider: "none",
+        sources: {
+          fangCommunityUrl: null,
+          fangWeekreportUrl: null,
+          anjukeSaleSearchUrl: "https://example.com/anjuke-search",
+        },
+      },
+    ]);
+
+    expect(() => loadCommunities(fixturePath)).toThrow(
+      /anjukeSaleSearchUrl|pending/i,
     );
   });
 
@@ -484,6 +528,37 @@ describe("loadSegments", () => {
             fangCommunityUrl: "https://example.com/mingquan-huayuan",
             fangWeekreportUrl: "https://example.com/mingquan-huayuan/weekreport",
             anjukeSaleSearchUrl: null,
+          },
+        },
+      ]),
+    ).not.toThrow();
+  });
+
+  it("does not freeze exact primary segment ids for wanke communities in shared loader", () => {
+    const fixturePath = writeJsonFixture("segments.json", [
+      {
+        communityId: "wanke-dongdi",
+        id: "wanke-custom-primary",
+        label: "两居 自定义主段",
+        rooms: 2,
+        areaMin: 84,
+        areaMax: 91,
+      },
+    ]);
+
+    expect(() =>
+      loadSegments(fixturePath, [
+        {
+          id: "wanke-dongdi",
+          name: "万科东第",
+          city: "天津",
+          district: "待确认",
+          status: "active",
+          sourceProvider: "anjuke_sale_search",
+          sources: {
+            fangCommunityUrl: null,
+            fangWeekreportUrl: null,
+            anjukeSaleSearchUrl: "https://example.com/anjuke-search",
           },
         },
       ]),

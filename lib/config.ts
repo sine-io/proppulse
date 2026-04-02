@@ -4,9 +4,6 @@ import { communitiesSchema, segmentsSchema } from "./schemas";
 import { COMMUNITIES_CONFIG_PATH, SEGMENTS_CONFIG_PATH } from "./paths";
 import type { Community, SegmentTemplate } from "./types";
 
-const WANKe_COMMUNITY_ID = "wanke-dongdi";
-const WANKe_PRIMARY_SEGMENT_ID = "wanke-2br-85-90";
-
 function readJsonFile(filePath: string): unknown {
   return JSON.parse(readFileSync(filePath, "utf8"));
 }
@@ -27,15 +24,6 @@ function validateSegmentsForCommunities(
   for (const segment of segments) {
     if (!knownCommunityIds.has(segment.communityId)) {
       throw new Error(`Unknown segment communityId: ${segment.communityId}`);
-    }
-
-    if (
-      segment.communityId === WANKe_COMMUNITY_ID &&
-      segment.id !== WANKe_PRIMARY_SEGMENT_ID
-    ) {
-      throw new Error(
-        `Unexpected primary segment id for community ${segment.communityId}: ${segment.id}`,
-      );
     }
 
     segmentCounts.set(
