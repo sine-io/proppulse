@@ -393,6 +393,54 @@ describe("scripts/collect.ts", () => {
     });
   }, 15_000);
 
+  it("clears stale Wanke teaser-derived fields after a failed rerun in the same runs directory", () => {
+    const fixtureRoot = makeFixtureRoot();
+    const runsDir = makeRunsDir();
+
+    runCollect("--fixture", fixtureRoot, "--runs-dir", runsDir);
+    overwriteWankeFixture(
+      fixtureRoot,
+      readFileSync(WANKE_BLOCKED_FIXTURE_PATH, "utf8"),
+    );
+
+    runCollect("--fixture", fixtureRoot, "--runs-dir", runsDir);
+
+    const latestRun = readLatestRun(runsDir) as {
+      communities: Record<
+        string,
+        {
+          fangCommunity: {
+            status: string;
+            referenceUnitPrice?: number | null;
+            listingCount?: number | null;
+            currentListingTeasers?: Array<{
+              title: string | null;
+              roomCount: number | null;
+              areaSqm: number | null;
+              totalPriceWan: number | null;
+              unitPriceYuanPerSqm: number | null;
+            }>;
+          };
+          fangWeekreport: {
+            status: string;
+          };
+        }
+      >;
+    };
+
+    expect(latestRun.communities["wanke-dongdi"]).toEqual({
+      fangCommunity: {
+        status: "failed",
+        referenceUnitPrice: null,
+        listingCount: null,
+        currentListingTeasers: [],
+      },
+      fangWeekreport: {
+        status: "skipped",
+      },
+    });
+  }, 15_000);
+
   it.each([
     [
       "empty-result fixture",
@@ -435,6 +483,9 @@ describe("scripts/collect.ts", () => {
       expect(latestRun.communities["wanke-dongdi"]).toEqual({
         fangCommunity: {
           status: "failed",
+          referenceUnitPrice: null,
+          listingCount: null,
+          currentListingTeasers: [],
         },
         fangWeekreport: {
           status: "skipped",

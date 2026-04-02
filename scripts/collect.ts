@@ -297,9 +297,12 @@ async function collectCommunityRun(
       const parsed = parseAnjukeSaleSearch(html, community.name);
 
       if (parsed.pageState !== "results" || parsed.listings.length === 0) {
-        fangCommunityRun = mergeFangCommunityRun(previousCommunity?.fangCommunity, {
+        fangCommunityRun = {
           status: "failed",
-        });
+          referenceUnitPrice: null,
+          listingCount: null,
+          currentListingTeasers: [],
+        };
       } else {
         const currentListingTeasers = parsed.listings.map((listing) => ({
           title: listing.title,
@@ -321,9 +324,12 @@ async function collectCommunityRun(
         });
       }
     } catch {
-      fangCommunityRun = mergeFangCommunityRun(previousCommunity?.fangCommunity, {
+      fangCommunityRun = {
         status: "failed",
-      });
+        referenceUnitPrice: null,
+        listingCount: null,
+        currentListingTeasers: [],
+      };
     }
 
     return {
