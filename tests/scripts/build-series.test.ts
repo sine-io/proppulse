@@ -305,7 +305,7 @@ describe("scripts/build-series.ts", () => {
     const fallbackSeries = readJsonFile<{
       series: Array<{
         derivedFrom: string;
-        listingUnitPriceMedian: number;
+        listingUnitPriceMedian: number | null;
       }>;
     }>(
       resolve(
@@ -322,6 +322,33 @@ describe("scripts/build-series.ts", () => {
       expect.objectContaining({
         derivedFrom: "community-fallback",
         listingUnitPriceMedian: 25_301,
+      }),
+    );
+
+    const wankeFallbackSeries = readJsonFile<{
+      series: Array<{
+        derivedFrom: string;
+        listingUnitPriceMedian: number | null;
+        listingUnitPriceMin: number | null;
+        listingsCount: number;
+      }>;
+    }>(
+      resolve(
+        workspace.dataDir,
+        "series",
+        "communities",
+        "wanke-dongdi",
+        "wanke-2br-85-90.json",
+      ),
+    );
+
+    expect(wankeFallbackSeries.series).toHaveLength(1);
+    expect(wankeFallbackSeries.series[0]).toEqual(
+      expect.objectContaining({
+        derivedFrom: "community-fallback",
+        listingUnitPriceMedian: null,
+        listingUnitPriceMin: null,
+        listingsCount: 2,
       }),
     );
 

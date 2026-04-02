@@ -27,7 +27,6 @@ export type AnjukeSaleSearchResult = z.infer<
   typeof anjukeSaleSearchResultSchema
 >;
 
-const TARGET_COMMUNITY = "万科东第";
 const EMPTY_PAGE_PATTERNS = [
   /没有找到/i,
   /暂无(?:相关)?(?:房源|二手房)/i,
@@ -143,10 +142,11 @@ function toAbsoluteDetailUrl(value: string | undefined): string | null {
 function parseListing(
   $: cheerio.CheerioAPI,
   listing: Element,
+  communityName: string,
 ): AnjukeSaleSearchListing | null {
   const title = normalizeText($(listing).find(".content-title").first().text());
 
-  if (!title || !hasExactCommunityMatch(title, TARGET_COMMUNITY)) {
+  if (!title || !hasExactCommunityMatch(title, communityName)) {
     return null;
   }
 
@@ -208,7 +208,10 @@ function dedupeListings(
   });
 }
 
-export function parseAnjukeSaleSearch(html: string): AnjukeSaleSearchResult {
+export function parseAnjukeSaleSearch(
+  html: string,
+  communityName: string,
+): AnjukeSaleSearchResult {
   const $ = cheerio.load(html);
   const bodyText = normalizeText($("body").text());
 
@@ -236,7 +239,7 @@ export function parseAnjukeSaleSearch(html: string): AnjukeSaleSearchResult {
     pageState: "results",
     listings: dedupeListings(
       cards
-        .map((listing) => parseListing($, listing))
+        .map((listing) => parseListing($, listing, communityName))
         .filter((listing): listing is AnjukeSaleSearchListing => listing !== null),
     ),
   });
