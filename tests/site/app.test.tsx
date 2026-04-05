@@ -484,8 +484,14 @@ describe("site App", () => {
     fireEvent.click(settingsLink);
 
     expect(window.location.hash).toBe("#settings");
+    expect(document.querySelectorAll("#settings")).toHaveLength(1);
 
     const settingsSection = screen.getByRole("region", { name: "系统设置专区" });
+    const strategyCard = screen.getByText("今日策略").closest("div");
+
+    expect(settingsSection).toHaveAttribute("id", "settings");
+    expect(strategyCard).not.toBeNull();
+    expect(strategyCard).not.toHaveAttribute("id", "settings");
 
     expect(
       within(settingsSection).getByRole("heading", { name: "系统设置" }),
