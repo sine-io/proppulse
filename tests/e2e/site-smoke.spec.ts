@@ -83,3 +83,21 @@ test("navigates to the focused communities section from the sidebar", async ({
     page.getByRole("heading", { name: "重点关注小区" }),
   ).toBeVisible();
 });
+
+test("navigates to inventory and settings sections from the sidebar", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("link", { name: "房源全库" }).click();
+  await expect(page).toHaveURL(/#inventory$/);
+  await expect(
+    page.getByRole("heading", { name: "房源全库" }),
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: "系统设置" }).click();
+  await expect(page).toHaveURL(/#settings$/);
+  await expect(
+    page.getByRole("heading", { name: "系统设置" }),
+  ).toBeVisible();
+});
