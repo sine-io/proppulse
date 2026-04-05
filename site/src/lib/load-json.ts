@@ -3,6 +3,7 @@ import type {
   CommunityStatus,
   SegmentTemplate,
 } from "../../../lib/types";
+import type { RunArtifact } from "./dashboard-view";
 
 export type CityMarketVerdict = "偏强" | "中性" | "偏弱";
 export type SegmentVerdict =
@@ -221,4 +222,14 @@ export async function loadDashboardData(): Promise<DashboardData> {
     latestReport,
     communitySeries: Object.fromEntries(communitySeriesEntries),
   };
+}
+
+export async function loadRecentRunArtifacts(limit = 5): Promise<RunArtifact[]> {
+  if (limit <= 0) {
+    return [];
+  }
+
+  const latestArtifact = await loadOptionalJson<RunArtifact>("data/runs/latest.json");
+
+  return latestArtifact ? [latestArtifact] : [];
 }
