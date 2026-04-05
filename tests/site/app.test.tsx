@@ -433,6 +433,27 @@ describe("site App", () => {
     expect(within(focusedSection).getByRole("heading", { name: "万科东第" })).toBeInTheDocument();
   });
 
+  it("navigates to inventory and renders the inventory section", async () => {
+    await renderLoadedApp();
+
+    const homeLink = screen.getByRole("link", { name: "首页" });
+    const inventoryLink = screen.getByRole("link", { name: "房源全库" });
+
+    expect(inventoryLink).toHaveAttribute("href", "#inventory");
+
+    fireEvent.click(inventoryLink);
+
+    expect(window.location.hash).toBe("#inventory");
+    expect(inventoryLink).toHaveAttribute("aria-current", "page");
+    expect(homeLink).not.toHaveAttribute("aria-current");
+
+    const inventorySection = screen.getByRole("region", { name: "房源全库专区" });
+
+    expect(
+      within(inventorySection).getByRole("heading", { name: "房源全库" }),
+    ).toBeInTheDocument();
+  });
+
   it("renders the inventory section with all monitored communities", async () => {
     await renderLoadedApp();
 
