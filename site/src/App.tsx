@@ -76,8 +76,9 @@ export default function App(): React.JSX.Element {
         <div className="flex h-screen flex-col">
           <TopHeader lastUpdatedLabel={viewModel?.lastUpdatedLabel ?? "加载中"} />
           <main className="dashboard-scroll-area flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-            <div
+            <section
               id="overview"
+              aria-label="首页概览"
               className="mx-auto flex max-w-7xl flex-col gap-6 scroll-mt-24"
             >
               {errorMessage ? (
@@ -100,7 +101,7 @@ export default function App(): React.JSX.Element {
 
               <section
                 id="price-radar"
-                aria-label="图表区"
+                aria-label="降价雷达专区"
                 className="grid gap-6 scroll-mt-24 lg:grid-cols-2"
               >
                 <ChartPanel
@@ -150,7 +151,7 @@ export default function App(): React.JSX.Element {
               >
                 <SettingsSection items={settingsItems} />
               </section>
-            </div>
+            </section>
           </main>
         </div>
       </div>

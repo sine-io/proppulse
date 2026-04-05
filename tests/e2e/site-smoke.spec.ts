@@ -115,3 +115,29 @@ test("navigates to inventory and settings sections from the sidebar", async ({
     page.getByRole("heading", { name: "系统设置" }),
   ).toBeVisible();
 });
+
+test("navigates to overview and price radar sections from the sidebar", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("link", { name: "首页" }).click();
+  const overviewSection = page.locator("#overview");
+  await expect(page).toHaveURL(/#overview$/);
+  await expect(overviewSection).toHaveCount(1);
+  await expect(overviewSection).toHaveAttribute("aria-label", "首页概览");
+  await expect(overviewSection).toBeInViewport();
+  await expect(
+    page.getByRole("region", { name: "首页概览" }),
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: "降价雷达" }).click();
+  const radarSection = page.locator("#price-radar");
+  await expect(page).toHaveURL(/#price-radar$/);
+  await expect(radarSection).toHaveCount(1);
+  await expect(radarSection).toHaveAttribute("aria-label", "降价雷达专区");
+  await expect(radarSection).toBeInViewport();
+  await expect(
+    page.getByRole("region", { name: "降价雷达专区" }),
+  ).toBeVisible();
+});

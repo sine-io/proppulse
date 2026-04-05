@@ -454,6 +454,27 @@ describe("site App", () => {
     ).toBeInTheDocument();
   });
 
+  it("navigates to overview and price radar regions from the sidebar", async () => {
+    await renderLoadedApp();
+
+    const homeLink = screen.getByRole("link", { name: "首页" });
+    const radarLink = screen.getByRole("link", { name: "降价雷达" });
+
+    expect(homeLink).toHaveAttribute("href", "#overview");
+    fireEvent.click(homeLink);
+    expect(window.location.hash).toBe("#overview");
+
+    const overviewSection = screen.getByRole("region", { name: "首页概览" });
+    expect(overviewSection).toHaveAttribute("id", "overview");
+
+    expect(radarLink).toHaveAttribute("href", "#price-radar");
+    fireEvent.click(radarLink);
+    expect(window.location.hash).toBe("#price-radar");
+
+    const radarSection = screen.getByRole("region", { name: "降价雷达专区" });
+    expect(radarSection).toHaveAttribute("id", "price-radar");
+  });
+
   it("renders the inventory section with all monitored communities", async () => {
     await renderLoadedApp();
 
