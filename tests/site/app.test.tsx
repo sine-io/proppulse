@@ -466,6 +466,9 @@ describe("site App", () => {
 
     const overviewSection = screen.getByRole("region", { name: "首页概览" });
     expect(overviewSection).toHaveAttribute("id", "overview");
+    expect(overviewSection.querySelector("#price-radar")).toBeNull();
+    expect(overviewSection.querySelector("#inventory")).toBeNull();
+    expect(overviewSection.querySelector("#settings")).toBeNull();
 
     expect(radarLink).toHaveAttribute("href", "#price-radar");
     fireEvent.click(radarLink);

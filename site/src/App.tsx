@@ -76,27 +76,29 @@ export default function App(): React.JSX.Element {
         <div className="flex h-screen flex-col">
           <TopHeader lastUpdatedLabel={viewModel?.lastUpdatedLabel ?? "加载中"} />
           <main className="dashboard-scroll-area flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-            <section
-              id="overview"
-              aria-label="首页概览"
-              className="mx-auto flex max-w-7xl flex-col gap-6 scroll-mt-24"
-            >
-              {errorMessage ? (
-                <section className="rounded-3xl border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-200">
-                  数据加载失败：{errorMessage}
-                </section>
-              ) : null}
-
+            <div className="mx-auto flex max-w-7xl flex-col gap-6">
               <section
-                aria-label="核心指标"
-                className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+                id="overview"
+                aria-label="首页概览"
+                className="flex flex-col gap-6 scroll-mt-24"
               >
-                {kpis.map((item) => {
-                  const { icon, ...rest } = item;
-                  const Icon = iconMap[icon] ?? TrendingDown;
+                {errorMessage ? (
+                  <section className="rounded-3xl border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-200">
+                    数据加载失败：{errorMessage}
+                  </section>
+                ) : null}
 
-                  return <KpiCard key={item.title} icon={Icon} {...rest} />;
-                })}
+                <section
+                  aria-label="核心指标"
+                  className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+                >
+                  {kpis.map((item) => {
+                    const { icon, ...rest } = item;
+                    const Icon = iconMap[icon] ?? TrendingDown;
+
+                    return <KpiCard key={item.title} icon={Icon} {...rest} />;
+                  })}
+                </section>
               </section>
 
               <section
@@ -151,7 +153,7 @@ export default function App(): React.JSX.Element {
               >
                 <SettingsSection items={settingsItems} />
               </section>
-            </section>
+            </div>
           </main>
         </div>
       </div>
