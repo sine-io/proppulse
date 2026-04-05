@@ -1,385 +1,133 @@
-import { startTransition, useEffect, useState } from "react";
-
-import DetailView from "./components/DetailView";
-import ManualInputCard from "./components/ManualInputCard";
-import MarketCard from "./components/MarketCard";
-import SegmentCard from "./components/SegmentCard";
 import {
-  loadDashboardData,
-  type CommunitySegmentSeriesEntry,
-  type DashboardData,
-} from "./lib/load-json";
+  Activity,
+  BadgeDollarSign,
+  Building2,
+  Radar,
+  ShieldAlert,
+  TrendingDown,
+} from "lucide-react";
 
-const DEFAULT_ISSUE_FORM_URL =
-  "https://github.com/sine-io/tianjin-housing-monitor/issues/new?template=manual-sample.yml";
-const DEFAULT_PRIMARY_COMMUNITY_ID = "mingquan-huayuan";
+import { ChartPanel } from "./components/dashboard/ChartPanel";
+import {
+  type DashboardIconKey,
+  dashboardKpis,
+  droppedListings,
+  timelineItems,
+} from "./components/dashboard/dashboard-data";
+import { DroppedListingsTable } from "./components/dashboard/DroppedListingsTable";
+import { KpiCard } from "./components/dashboard/KpiCard";
+import { Sidebar } from "./components/dashboard/Sidebar";
+import { TimelineFeed } from "./components/dashboard/TimelineFeed";
+import { TopHeader } from "./components/dashboard/TopHeader";
 
-interface AppProps {
-  loader?: () => Promise<DashboardData>;
-  issueFormUrl?: string;
-  primaryCommunityId?: string;
-}
+const iconMap: Record<DashboardIconKey, typeof TrendingDown> = {
+  "badge-dollar-sign": BadgeDollarSign,
+  "building-2": Building2,
+  activity: Activity,
+  "shield-alert": ShieldAlert,
+};
 
-interface AnomalyItem {
-  id: string;
-  detail: string;
-}
-
-type CommunityRecord = DashboardData["communities"][number];
-
-function formatPrice(value: number | null | undefined): string {
-  if (value === null || value === undefined) {
-    return "暂无";
-  }
-
-  return `${value.toLocaleString("zh-CN")} 元/㎡`;
-}
-
-function deriveLatestAnomalies(
-  communityName: string,
-  segments: Array<{
-    segmentLabel: string;
-    verdict: string | null;
-    latest: {
-      listingUnitPriceMedian: number | null;
-      listingsCount: number;
-      manualDealCount: number;
-    } | null;
-    latestEntry: CommunitySegmentSeriesEntry | null;
-  }>,
-): AnomalyItem[] {
-  return segments.flatMap((segment) => {
-    if (!segment.latest) {
-      return [
-        {
-          id: `${segment.segmentLabel}-missing`,
-          detail: `${communityName} ${segment.segmentLabel} 缺少最新周报快照，当前需要补全数据。`,
-        },
-      ];
-    }
-
-    const items: AnomalyItem[] = [];
-
-    if (segment.latest.listingsCount < 3) {
-      items.push({
-        id: `${segment.segmentLabel}-inventory`,
-        detail: `${segment.segmentLabel} 挂牌仅 ${segment.latest.listingsCount} 套，${segment.verdict ?? "当前结论"}需要谨慎解读。`,
-      });
-    }
-
-    if (segment.latest.manualDealCount === 0) {
-      items.push({
-        id: `${segment.segmentLabel}-manual`,
-        detail: `${segment.segmentLabel} 暂无人工成交补样，建议补一条手工样本核对价格。`,
-      });
-    }
-
-    if (segment.latestEntry?.derivedFrom === "community-fallback") {
-      items.push({
-        id: `${segment.segmentLabel}-fallback`,
-        detail: `${segment.segmentLabel} 当前采用小区级回退价格，并非户型独立挂牌样本。`,
-      });
-    }
-
-    return items;
-  });
-}
-
-function buildWeeklySummaryText(
-  data: DashboardData,
-  primaryCommunityName: string,
-  insufficientSegmentCount: number,
-): string {
-  const currentMarketEntry =
-    data.latestReport?.cityMarket ?? data.cityMarket.series.at(-1) ?? null;
-  const summaryDate = data.latestReport?.weekEnding ?? currentMarketEntry?.date ?? null;
-
-  if (!currentMarketEntry || !summaryDate) {
-    return "暂无最新周报摘要，等待下一次数据构建。";
-  }
-
-  const communitySummary =
-    insufficientSegmentCount > 0
-      ? `；${primaryCommunityName} 当前有 ${insufficientSegmentCount} 个监控户型处于样本不足。`
-      : "。";
-
-  return `${summaryDate} ${data.cityMarket.city}二手房市场${currentMarketEntry.verdict}，环比指数 ${currentMarketEntry.secondaryHomePriceIndexMom.toFixed(
-    1,
-  )}，同比指数 ${currentMarketEntry.secondaryHomePriceIndexYoy.toFixed(
-    1,
-  )}${communitySummary}`;
-}
-
-function countInsufficientSegments(
-  segments: Array<{
-    verdict: string | null;
-  }>,
-): number {
-  return segments.filter((segment) => segment.verdict === "样本不足").length;
-}
-
-function getDisplayVerdict(
-  community: CommunityRecord,
-  verdict: string | null | undefined,
-): string {
-  if (community.status === "pending_verification") {
-    return "待复核";
-  }
-
-  return verdict ?? "待补齐";
-}
-
-export default function App({
-  loader = loadDashboardData,
-  issueFormUrl = DEFAULT_ISSUE_FORM_URL,
-  primaryCommunityId = DEFAULT_PRIMARY_COMMUNITY_ID,
-}: AppProps): React.JSX.Element {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [selectedSegmentId, setSelectedSegmentId] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    loader()
-      .then((nextData) => {
-        if (cancelled) {
-          return;
-        }
-
-        setData(nextData);
-        setErrorMessage(null);
-      })
-      .catch((error: unknown) => {
-        if (cancelled) {
-          return;
-        }
-
-        setErrorMessage(
-          error instanceof Error ? error.message : "Failed to load dashboard data",
-        );
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [loader]);
-
-  if (errorMessage) {
-    return (
-      <main className="app-shell">
-        <div className="shell">
-          <section className="card error-card" role="alert">
-            <div className="eyebrow">加载失败</div>
-            <h1>静态看板无法读取 JSON</h1>
-            <p>{errorMessage}</p>
-          </section>
-        </div>
-      </main>
-    );
-  }
-
-  if (!data) {
-    return (
-      <main className="app-shell">
-        <div className="shell">
-          <section className="card loading-card">
-            <div className="eyebrow">正在载入</div>
-            <h1>静态看板准备中</h1>
-            <p className="muted">读取社区配置、周报快照和趋势 JSON。</p>
-          </section>
-        </div>
-      </main>
-    );
-  }
-
-  const primaryCommunity =
-    data.communities.find((community) => community.id === primaryCommunityId) ??
-    data.communities[0] ??
-    null;
-  const primarySegmentsByCommunityId = data.primarySegmentsByCommunityId ?? {};
-
-  if (!primaryCommunity) {
-    return (
-      <main className="app-shell">
-        <div className="shell">
-          <section className="card error-card" role="alert">
-            <div className="eyebrow">缺少配置</div>
-            <h1>未找到监控小区</h1>
-            <p>请先生成 `communities.json` 后再打开静态看板。</p>
-          </section>
-        </div>
-      </main>
-    );
-  }
-
-  const invalidPrimarySegmentCommunity =
-    data.communities.find(
-      (community) => !primarySegmentsByCommunityId[community.id],
-    ) ?? null;
-
-  if (invalidPrimarySegmentCommunity) {
-    return (
-      <main className="app-shell">
-        <div className="shell">
-          <section className="card error-card" role="alert">
-            <div className="eyebrow">配置异常</div>
-            <h1>主监控户型映射无效</h1>
-            <p>{invalidPrimarySegmentCommunity.name} 缺少唯一主监控户型映射。</p>
-          </section>
-        </div>
-      </main>
-    );
-  }
-
-  const primaryReport = data.latestReport?.communities[primaryCommunity.id] ?? null;
-  const primarySegments = [primarySegmentsByCommunityId[primaryCommunity.id]].map(
-    (segment) => {
-    const snapshot = primaryReport?.segments[segment.id] ?? null;
-    const latestEntry =
-      data.communitySeries[primaryCommunity.id]?.[segment.id]?.series.at(-1) ?? null;
-
-    return {
-      segment,
-      segmentLabel: segment.label,
-      verdict: getDisplayVerdict(primaryCommunity, snapshot?.verdict),
-      latest: snapshot?.latest ?? null,
-      latestEntry,
-    };
-    },
-  );
-
-  const latestAnomalies = deriveLatestAnomalies(
-    primaryCommunity.name,
-    primarySegments,
-  ).slice(0, 3);
-  const insufficientSegmentCount = countInsufficientSegments(primarySegments);
-  const currentMarketEntry =
-    data.latestReport?.cityMarket ?? data.cityMarket.series.at(-1) ?? null;
-  const weeklySummaryText = buildWeeklySummaryText(
-    data,
-    primaryCommunity.name,
-    insufficientSegmentCount,
-  );
-  const selectedSegment =
-    primarySegments.find((segment) => segment.segment.id === selectedSegmentId) ?? null;
-  const comparisonCommunities = data.communities
-    .filter((community) => community.id !== primaryCommunity.id)
-    .map((community) => {
-      const primarySegment = primarySegmentsByCommunityId[community.id];
-      const snapshot =
-        data.latestReport?.communities[community.id]?.segments[primarySegment.id] ?? null;
-      const latestEntry =
-        data.communitySeries[community.id]?.[primarySegment.id]?.series.at(-1) ?? null;
-
-      return {
-        id: community.id,
-        name: community.name,
-        district: community.district,
-        segmentLabel: primarySegment.label,
-        verdict: getDisplayVerdict(community, snapshot?.verdict),
-        latestPrice:
-          snapshot?.latest?.listingUnitPriceMedian ??
-          latestEntry?.listingUnitPriceMedian ??
-          null,
-        listingsCount:
-          snapshot?.latest?.listingsCount ?? latestEntry?.listingsCount ?? null,
-      };
-    });
-
+export default function App(): React.JSX.Element {
   return (
-    <main className="app-shell">
-      <div className="shell">
-        <header className="hero">
-          <div className="eyebrow">天津住房监测</div>
-          <h1>用一页静态看板盯住鸣泉花园</h1>
-          <p className="hero-copy">
-            首页先给出市场方向、异常提醒和周报摘要，再下钻到具体户型趋势与对比小区。
-          </p>
-        </header>
-
-        {selectedSegment ? (
-          <DetailView
-            communityName={primaryCommunity.name}
-            communityStatus={primaryCommunity.status}
-            comparisonCommunities={comparisonCommunities}
-            issueFormUrl={issueFormUrl}
-            latest={selectedSegment.latest}
-            latestSeriesEntry={selectedSegment.latestEntry}
-            onBack={() => setSelectedSegmentId(null)}
-            segmentLabel={selectedSegment.segmentLabel}
-            seriesFile={
-              data.communitySeries[primaryCommunity.id]?.[selectedSegment.segment.id] ??
-              null
-            }
-            verdict={selectedSegment.verdict}
-          />
-        ) : (
-          <>
-            <div className="summary-stack">
-              <MarketCard latestEntry={currentMarketEntry} />
-
-              <section className="card" data-testid="anomaly-card">
-                <div className="eyebrow">异常提醒</div>
-                <h2>本周先看这些缺口</h2>
-                <ul className="summary-list">
-                  {latestAnomalies.length > 0 ? (
-                    latestAnomalies.map((item) => (
-                      <li key={item.id}>{item.detail}</li>
-                    ))
-                  ) : (
-                    <li>暂无异常提醒，本周数据完整度维持正常。</li>
-                  )}
-                </ul>
-              </section>
-
-              <section className="card" data-testid="weekly-summary">
-                <div className="eyebrow">最新周报</div>
-                <h2>摘要</h2>
-                <p className="narrative">{weeklySummaryText}</p>
-              </section>
-
-              <ManualInputCard issueFormUrl={issueFormUrl} />
-            </div>
-
-            <section className="panel">
-                <div className="section-title">
-                  <div>
-                    <div className="eyebrow">监控户型</div>
-                    <h2>{primaryCommunity.name}</h2>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <Sidebar />
+      <div className="min-h-screen lg:pl-64">
+        <div className="flex h-screen flex-col">
+          <TopHeader lastUpdatedLabel="10分钟前" />
+          <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
+            <div className="mx-auto flex max-w-7xl flex-col gap-6">
+              <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 shadow-2xl shadow-slate-950/30">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium uppercase tracking-[0.32em] text-slate-400">
+                      Housing Dashboard
+                    </p>
+                    <div className="space-y-2">
+                      <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                        天津核心小区降价线索总览
+                      </h1>
+                      <p className="max-w-3xl text-sm leading-6 text-slate-300 sm:text-base">
+                        聚焦降价房源、价格洼地与异常波动，给首页一个可快速扫描、可持续扩展的纯静态 Dashboard。
+                      </p>
+                    </div>
                   </div>
-                  <p className="muted">
-                    {primarySegments.length === 1
-                      ? "当前主小区只保留 1 张主力户型卡片。"
-                      : `当前主小区展示 ${primarySegments.length} 张主力户型卡片。`}
-                  </p>
-              </div>
-              <div className="segment-grid" data-testid="segment-grid">
-                {primarySegments.map((segment) => (
-                  <SegmentCard
-                    key={segment.segment.id}
-                    communityName={primaryCommunity.name}
-                    isPendingVerification={
-                      primaryCommunity.status === "pending_verification"
-                    }
-                    latestEntry={segment.latestEntry}
-                    onSelect={() =>
-                      startTransition(() => {
-                        setSelectedSegmentId(segment.segment.id);
-                      })
-                    }
-                    segmentLabel={segment.segmentLabel}
-                    snapshot={
-                      primaryReport?.segments[segment.segment.id] ?? null
-                    }
-                    verdictLabel={segment.verdict ?? "待补齐"}
-                  />
-                ))}
-              </div>
-            </section>
-          </>
-        )}
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
+                      <div className="text-xs uppercase tracking-[0.28em] text-emerald-300">
+                        Favorable
+                      </div>
+                      <div className="mt-2 text-2xl font-semibold text-white">
+                        12
+                      </div>
+                      <div className="text-sm text-emerald-100/80">
+                        套房源低于板块均价
+                      </div>
+                    </div>
+                    <div className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3">
+                      <div className="text-xs uppercase tracking-[0.28em] text-slate-400">
+                        Watchlist
+                      </div>
+                      <div className="mt-2 text-2xl font-semibold text-white">
+                        8
+                      </div>
+                      <div className="text-sm text-slate-300">重点监控小区</div>
+                    </div>
+                    <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 px-4 py-3">
+                      <div className="text-xs uppercase tracking-[0.28em] text-rose-300">
+                        Risk
+                      </div>
+                      <div className="mt-2 text-2xl font-semibold text-white">
+                        3
+                      </div>
+                      <div className="text-sm text-rose-100/80">
+                        个小区出现逆势涨价
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section
+                aria-label="核心指标"
+                className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+              >
+                {dashboardKpis.map((item) => {
+                  const { icon, ...rest } = item;
+
+                  return (
+                    <KpiCard key={item.title} icon={iconMap[icon]} {...rest} />
+                  );
+                })}
+              </section>
+
+              <section className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_360px]">
+                <div className="space-y-6">
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    <ChartPanel
+                      title="核心小区挂牌均价走势 (近30天)"
+                      subtitle="跟踪重点小区挂牌均价拐点，预留 Recharts 折线图容器。"
+                      icon={TrendingDown}
+                      accent="emerald"
+                      placeholder="[ Recharts Line Chart Placeholder ]"
+                    />
+                    <ChartPanel
+                      title="单价洼地雷达"
+                      subtitle="对比面积、总价与楼层等维度，预留散点 / 气泡图容器。"
+                      icon={Radar}
+                      accent="sky"
+                      placeholder="[ Recharts Scatter / Bubble Chart Placeholder ]"
+                    />
+                  </div>
+
+                  <DroppedListingsTable items={droppedListings} />
+                </div>
+
+                <TimelineFeed items={timelineItems} />
+              </section>
+            </div>
+          </main>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
