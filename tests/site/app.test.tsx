@@ -473,4 +473,26 @@ describe("site App", () => {
     ).toBeInTheDocument();
     expect(within(inventorySection).getAllByText("房天下小区").length).toBeGreaterThan(0);
   });
+
+  it("renders the settings section with dashboard maintenance guidance", async () => {
+    await renderLoadedApp();
+
+    const settingsLink = screen.getByRole("link", { name: "系统设置" });
+
+    expect(settingsLink).toHaveAttribute("href", "#settings");
+
+    fireEvent.click(settingsLink);
+
+    expect(window.location.hash).toBe("#settings");
+
+    const settingsSection = screen.getByRole("region", { name: "系统设置专区" });
+
+    expect(
+      within(settingsSection).getByRole("heading", { name: "系统设置" }),
+    ).toBeInTheDocument();
+    expect(within(settingsSection).getByText("数据刷新")).toBeInTheDocument();
+    expect(
+      within(settingsSection).getByText("npm run build / npm run test:e2e"),
+    ).toBeInTheDocument();
+  });
 });

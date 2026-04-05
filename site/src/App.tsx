@@ -13,6 +13,7 @@ import { DroppedListingsTable } from "./components/dashboard/DroppedListingsTabl
 import { FocusedCommunitiesSection } from "./components/dashboard/FocusedCommunitiesSection";
 import { InventorySection } from "./components/dashboard/InventorySection";
 import { KpiCard } from "./components/dashboard/KpiCard";
+import { SettingsSection } from "./components/dashboard/SettingsSection";
 import { Sidebar } from "./components/dashboard/Sidebar";
 import { TimelineFeed } from "./components/dashboard/TimelineFeed";
 import { TopHeader } from "./components/dashboard/TopHeader";
@@ -65,6 +66,7 @@ export default function App(): React.JSX.Element {
   const focusedCommunities = viewModel?.focusedCommunities ?? [];
   const inventoryCommunities = viewModel?.inventoryCommunities ?? [];
   const droppedListings = viewModel?.droppedListings ?? [];
+  const settingsItems = viewModel?.settingsItems ?? [];
   const timelineItems = viewModel?.timelineItems ?? [];
 
   return (
@@ -139,6 +141,14 @@ export default function App(): React.JSX.Element {
               >
                 <DroppedListingsTable items={droppedListings} />
                 <TimelineFeed items={timelineItems} />
+              </section>
+
+              <section
+                id="settings"
+                aria-label="系统设置专区"
+                className="scroll-mt-24"
+              >
+                <SettingsSection items={settingsItems} />
               </section>
             </div>
           </main>
