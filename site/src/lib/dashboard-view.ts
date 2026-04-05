@@ -1,9 +1,12 @@
 import type { DashboardData } from "./load-json";
+import type { CommunitySourceProvider } from "../../../lib/types";
 import type {
   DashboardIconKey,
   DashboardKpi,
   DroppedListing,
   FocusedCommunitySummary,
+  InventoryCommunitySummary,
+  SettingsItem,
   TimelineItem,
   TimelineTone,
 } from "../components/dashboard/dashboard-types";
@@ -66,7 +69,9 @@ export interface RunArtifact {
 export interface DashboardViewModel {
   kpis: DashboardKpi[];
   focusedCommunities: FocusedCommunitySummary[];
+  inventoryCommunities: InventoryCommunitySummary[];
   droppedListings: DroppedListing[];
+  settingsItems: SettingsItem[];
   timelineItems: TimelineItem[];
   lastUpdatedLabel: string;
 }
@@ -134,6 +139,17 @@ function formatListingCountLabel(value: number | null | undefined): string {
   }
 
   return `${value} 套`;
+}
+
+function formatSourceProviderLabel(provider: CommunitySourceProvider): string {
+  switch (provider) {
+    case "fang_mobile":
+      return "房天下小区";
+    case "anjuke_sale_search":
+      return "安居客搜索";
+    case "none":
+      return "无数据源";
+  }
 }
 
 function daysBetweenInclusive(startAt: string, endAt: string): number {
@@ -275,6 +291,9 @@ export function buildDashboardViewModel(
   const latestRun = sortedRuns.at(-1);
   const latestMarketEntry = data.cityMarket.series.at(-1);
   const droppedSamples = buildDroppedListings(data, sortedRuns);
+  const latestRunLabel = latestRun
+    ? formatRelativeUpdatedAt(latestRun.generatedAt)
+    : "暂无更新";
 
   const totalListings = data.communities.reduce((total, community) => {
     const latestCommunityRun = latestRun?.communities[community.id];
@@ -326,6 +345,41 @@ export function buildDashboardViewModel(
       "shield-alert",
     ),
   ];
+
+  const inventoryCommunities: InventoryCommunitySummary[] = data.communities.map(
+    (community) => {
+      const primarySegment = data.primarySegmentsByCommunityId[community.id];
+      const latestReportSegment = primarySegment
+        ? data.latestReport?.communities[community.id]?.segments[primarySegment.id]
+        : undefined;
+      const latestSeriesEntry = primarySegment
+        ? data.communitySeries[community.id]?.[primarySegment.id]?.series.at(-1)
+        : undefined;
+
+      return {
+        id: community.id,
+        name: community.name,
+        district: community.district,
+        segmentLabel: primarySegment?.label ?? "待配置",
+        latestPrice: formatPriceLabel(
+          latestReportSegment?.latest?.listingUnitPriceMedian ??
+            latestSeriesEntry?.listingUnitPriceMedian ??
+            null,
+        ),
+        listingsCount: formatListingCountLabel(
+          latestReportSegment?.latest?.listingsCount ??
+            latestSeriesEntry?.listingsCount ??
+            null,
+        ),
+        verdict:
+          latestReportSegment?.verdict ??
+          (community.status === "active" ? "待观察" : "待复核"),
+        status: community.status === "active" ? "正常监控" : "待复核",
+        sourceProvider: formatSourceProviderLabel(community.sourceProvider),
+        tone: community.status === "active" ? "active" : "pending",
+      };
+    },
+  );
 
   const focusedCommunities: FocusedCommunitySummary[] = data.communities.map(
     (community) => {
@@ -380,7 +434,7 @@ export function buildDashboardViewModel(
       `drop:${sample.id}`,
       `${sample.communityName} ${formatArea(sample.areaSqm)} 房源降价`,
       `总价从 ${formatWanPrice(sample.previousPriceWan)} 降至 ${formatWanPrice(sample.currentPriceWan)}，跌幅 ${Math.abs(sample.dropPct).toFixed(1)}%。`,
-      latestRun ? formatRelativeUpdatedAt(latestRun.generatedAt) : "暂无更新",
+      latestRunLabel,
       "positive",
     ),
   );
@@ -407,7 +461,7 @@ export function buildDashboardViewModel(
           `alert:${community.id}`,
           `${community.name} 数据抓取异常`,
           `最新 run 中 ${failedSources.join(" / ")} 状态异常，请优先排查。`,
-          formatRelativeUpdatedAt(latestRun.generatedAt),
+          latestRunLabel,
           "negative",
         ),
       );
@@ -418,16 +472,43 @@ export function buildDashboardViewModel(
         `refresh:${latestRun.generatedAt}`,
         "最新监控样本已刷新完成",
         "挂牌样本与周报快照已同步到首页 view-model。",
-        formatRelativeUpdatedAt(latestRun.generatedAt),
+        latestRunLabel,
         "neutral",
       ),
     );
   }
 
+  const activeCommunitiesCount = data.communities.filter(
+    (community) => community.status === "active",
+  ).length;
+
+  const settingsItems: SettingsItem[] = [
+    {
+      id: "data-refresh",
+      title: "数据刷新",
+      value: latestRunLabel,
+      description: `最近读取 ${sortedRuns.length} 次 run artifact，并优先使用最新周报快照。`,
+    },
+    {
+      id: "coverage",
+      title: "监控覆盖",
+      value: `${data.communities.length} 个小区 / ${activeCommunitiesCount} 个正常监控`,
+      description: "pending_verification 小区会继续展示，但状态标记为待复核。",
+    },
+    {
+      id: "verification-commands",
+      title: "验证命令",
+      value: "npm run build / npm run test:e2e",
+      description: "本地预览、构建和 E2E 验证都通过这些命令完成。",
+    },
+  ];
+
   return {
     kpis,
     focusedCommunities,
+    inventoryCommunities,
     droppedListings,
+    settingsItems,
     timelineItems,
     lastUpdatedLabel: latestRun
       ? formatRelativeUpdatedAt(latestRun.generatedAt)

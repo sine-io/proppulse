@@ -276,6 +276,20 @@ function makeRunArtifacts(): RunArtifact[] {
   ];
 }
 
+function makeDashboardDataWithSourceProviders(
+  sourceProviders: DashboardData["communities"][number]["sourceProvider"][],
+): DashboardData {
+  const data = makeDashboardData();
+
+  return {
+    ...data,
+    communities: data.communities.map((community, index) => ({
+      ...community,
+      sourceProvider: sourceProviders[index] ?? community.sourceProvider,
+    })),
+  };
+}
+
 describe("dashboard-view", () => {
   it("formats relative update labels", () => {
     vi.useFakeTimers();
@@ -344,6 +358,60 @@ describe("dashboard-view", () => {
       status: "正常监控",
       tone: "active",
     });
+  });
+
+  it("builds inventory community summaries from the latest dashboard data", () => {
+    const viewModel = buildDashboardViewModel(makeDashboardData(), makeRunArtifacts());
+
+    expect(viewModel.inventoryCommunities).toHaveLength(2);
+    expect(viewModel.inventoryCommunities[0]).toMatchObject({
+      name: "鸣泉花园",
+      sourceProvider: "房天下小区",
+      segmentLabel: "2居 87-90㎡",
+      latestPrice: "22,980 元/㎡",
+      listingsCount: "1 套",
+    });
+  });
+
+  it("maps all supported source provider labels in inventory summaries", () => {
+    const viewModel = buildDashboardViewModel(
+      makeDashboardDataWithSourceProviders(["anjuke_sale_search", "none"]),
+      makeRunArtifacts(),
+    );
+
+    expect(viewModel.inventoryCommunities[0]).toMatchObject({
+      name: "鸣泉花园",
+      sourceProvider: "安居客搜索",
+    });
+    expect(viewModel.inventoryCommunities[1]).toMatchObject({
+      name: "万科东第",
+      sourceProvider: "无数据源",
+    });
+  });
+
+  it("builds settings summary cards from dashboard state", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const viewModel = buildDashboardViewModel(makeDashboardData(), makeRunArtifacts());
+
+    expect(viewModel.settingsItems.map((item) => item.title)).toEqual([
+      "数据刷新",
+      "监控覆盖",
+      "验证命令",
+    ]);
+    expect(viewModel.settingsItems[0]).toMatchObject({
+      value: "10分钟前",
+      description: "最近读取 2 次 run artifact，并优先使用最新周报快照。",
+    });
+    expect(viewModel.settingsItems[1]).toMatchObject({
+      value: "2 个小区 / 2 个正常监控",
+    });
+    expect(viewModel.settingsItems[2]).toMatchObject({
+      value: "npm run build / npm run test:e2e",
+    });
+
+    vi.useRealTimers();
   });
 
   it("derives timeline items for drop, alert, and refresh events", () => {

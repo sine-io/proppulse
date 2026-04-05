@@ -47,3 +47,23 @@ export interface FocusedCommunitySummary {
   status: string;
   tone: FocusedCommunityTone;
 }
+
+export interface InventoryCommunitySummary {
+  id: string;
+  name: string;
+  district: string;
+  segmentLabel: string;
+  latestPrice: string;
+  listingsCount: string;
+  verdict: string;
+  status: string;
+  sourceProvider: string;
+  tone: FocusedCommunityTone;
+}
+
+export interface SettingsItem {
+  id: string;
+  title: string;
+  value: string;
+  description: string;
+}

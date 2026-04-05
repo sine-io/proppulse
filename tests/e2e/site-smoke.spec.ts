@@ -83,3 +83,66 @@ test("navigates to the focused communities section from the sidebar", async ({
     page.getByRole("heading", { name: "重点关注小区" }),
   ).toBeVisible();
 });
+
+test("navigates to inventory and settings sections from the sidebar", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("link", { name: "房源全库" }).click();
+  const inventorySection = page.locator("#inventory");
+  await expect(page).toHaveURL(/#inventory$/);
+  await expect(inventorySection).toHaveCount(1);
+  await expect(inventorySection).toHaveAttribute("aria-label", "房源全库专区");
+  await expect(inventorySection).toBeInViewport();
+  await expect(
+    page.getByRole("region", { name: "房源全库专区" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "房源全库" }),
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: "系统设置" }).click();
+  const settingsSection = page.locator("#settings");
+  await expect(page).toHaveURL(/#settings$/);
+  await expect(settingsSection).toHaveCount(1);
+  await expect(settingsSection).toHaveAttribute("aria-label", "系统设置专区");
+  await expect(settingsSection).toBeInViewport();
+  await expect(
+    page.getByRole("region", { name: "系统设置专区" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "系统设置" }),
+  ).toBeVisible();
+});
+
+test("navigates to overview and price radar sections from the sidebar", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await page.getByRole("link", { name: "首页" }).click();
+  const overviewSection = page.locator("#overview");
+  await expect(page).toHaveURL(/#overview$/);
+  await expect(overviewSection).toHaveCount(1);
+  await expect(overviewSection).toHaveAttribute("aria-label", "首页概览");
+  await expect(overviewSection).toBeInViewport();
+  await expect(
+    page.getByRole("region", { name: "首页概览" }),
+  ).toBeVisible();
+  await expect(page.locator("#overview #price-radar")).toHaveCount(0);
+  await expect(page.locator("#overview #focus-communities")).toHaveCount(0);
+  await expect(page.locator("#overview #inventory")).toHaveCount(0);
+  await expect(page.locator("#overview #settings")).toHaveCount(0);
+  await expect(page.locator('#overview [aria-label="底部区"]')).toHaveCount(0);
+
+  await page.getByRole("link", { name: "降价雷达" }).click();
+  const radarSection = page.locator("#price-radar");
+  await expect(page).toHaveURL(/#price-radar$/);
+  await expect(radarSection).toHaveCount(1);
+  await expect(radarSection).toHaveAttribute("aria-label", "降价雷达专区");
+  await expect(radarSection).toBeInViewport();
+  await expect(
+    page.getByRole("region", { name: "降价雷达专区" }),
+  ).toBeVisible();
+});

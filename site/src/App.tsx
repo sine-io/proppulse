@@ -11,7 +11,9 @@ import { useEffect, useState } from "react";
 import { ChartPanel } from "./components/dashboard/ChartPanel";
 import { DroppedListingsTable } from "./components/dashboard/DroppedListingsTable";
 import { FocusedCommunitiesSection } from "./components/dashboard/FocusedCommunitiesSection";
+import { InventorySection } from "./components/dashboard/InventorySection";
 import { KpiCard } from "./components/dashboard/KpiCard";
+import { SettingsSection } from "./components/dashboard/SettingsSection";
 import { Sidebar } from "./components/dashboard/Sidebar";
 import { TimelineFeed } from "./components/dashboard/TimelineFeed";
 import { TopHeader } from "./components/dashboard/TopHeader";
@@ -62,7 +64,9 @@ export default function App(): React.JSX.Element {
 
   const kpis = viewModel?.kpis ?? [];
   const focusedCommunities = viewModel?.focusedCommunities ?? [];
+  const inventoryCommunities = viewModel?.inventoryCommunities ?? [];
   const droppedListings = viewModel?.droppedListings ?? [];
+  const settingsItems = viewModel?.settingsItems ?? [];
   const timelineItems = viewModel?.timelineItems ?? [];
 
   return (
@@ -72,31 +76,34 @@ export default function App(): React.JSX.Element {
         <div className="flex h-screen flex-col">
           <TopHeader lastUpdatedLabel={viewModel?.lastUpdatedLabel ?? "加载中"} />
           <main className="dashboard-scroll-area flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
-            <div
-              id="overview"
-              className="mx-auto flex max-w-7xl flex-col gap-6 scroll-mt-24"
-            >
-              {errorMessage ? (
-                <section className="rounded-3xl border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-200">
-                  数据加载失败：{errorMessage}
-                </section>
-              ) : null}
-
+            <div className="mx-auto flex max-w-7xl flex-col gap-6">
               <section
-                aria-label="核心指标"
-                className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+                id="overview"
+                aria-label="首页概览"
+                className="flex flex-col gap-6 scroll-mt-24"
               >
-                {kpis.map((item) => {
-                  const { icon, ...rest } = item;
-                  const Icon = iconMap[icon] ?? TrendingDown;
+                {errorMessage ? (
+                  <section className="rounded-3xl border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-200">
+                    数据加载失败：{errorMessage}
+                  </section>
+                ) : null}
 
-                  return <KpiCard key={item.title} icon={Icon} {...rest} />;
-                })}
+                <section
+                  aria-label="核心指标"
+                  className="grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+                >
+                  {kpis.map((item) => {
+                    const { icon, ...rest } = item;
+                    const Icon = iconMap[icon] ?? TrendingDown;
+
+                    return <KpiCard key={item.title} icon={Icon} {...rest} />;
+                  })}
+                </section>
               </section>
 
               <section
                 id="price-radar"
-                aria-label="图表区"
+                aria-label="降价雷达专区"
                 className="grid gap-6 scroll-mt-24 lg:grid-cols-2"
               >
                 <ChartPanel
@@ -125,11 +132,26 @@ export default function App(): React.JSX.Element {
 
               <section
                 id="inventory"
+                aria-label="房源全库专区"
+                className="scroll-mt-24"
+              >
+                <InventorySection items={inventoryCommunities} />
+              </section>
+
+              <section
                 aria-label="底部区"
                 className="grid gap-6 scroll-mt-24 xl:items-start xl:grid-cols-[minmax(0,2fr)_360px]"
               >
                 <DroppedListingsTable items={droppedListings} />
                 <TimelineFeed items={timelineItems} />
+              </section>
+
+              <section
+                id="settings"
+                aria-label="系统设置专区"
+                className="scroll-mt-24"
+              >
+                <SettingsSection items={settingsItems} />
               </section>
             </div>
           </main>

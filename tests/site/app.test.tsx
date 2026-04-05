@@ -432,4 +432,98 @@ describe("site App", () => {
     expect(within(focusedSection).getByRole("heading", { name: "鸣泉花园" })).toBeInTheDocument();
     expect(within(focusedSection).getByRole("heading", { name: "万科东第" })).toBeInTheDocument();
   });
+
+  it("navigates to inventory and renders the inventory section", async () => {
+    await renderLoadedApp();
+
+    const homeLink = screen.getByRole("link", { name: "首页" });
+    const inventoryLink = screen.getByRole("link", { name: "房源全库" });
+
+    expect(inventoryLink).toHaveAttribute("href", "#inventory");
+
+    fireEvent.click(inventoryLink);
+
+    expect(window.location.hash).toBe("#inventory");
+    expect(inventoryLink).toHaveAttribute("aria-current", "page");
+    expect(homeLink).not.toHaveAttribute("aria-current");
+
+    const inventorySection = screen.getByRole("region", { name: "房源全库专区" });
+
+    expect(
+      within(inventorySection).getByRole("heading", { name: "房源全库" }),
+    ).toBeInTheDocument();
+  });
+
+  it("navigates to overview and price radar regions from the sidebar", async () => {
+    await renderLoadedApp();
+
+    const homeLink = screen.getByRole("link", { name: "首页" });
+    const radarLink = screen.getByRole("link", { name: "降价雷达" });
+
+    expect(homeLink).toHaveAttribute("href", "#overview");
+    fireEvent.click(homeLink);
+    expect(window.location.hash).toBe("#overview");
+
+    const overviewSection = screen.getByRole("region", { name: "首页概览" });
+    expect(overviewSection).toHaveAttribute("id", "overview");
+    expect(overviewSection.querySelector("#price-radar")).toBeNull();
+    expect(overviewSection.querySelector("#focus-communities")).toBeNull();
+    expect(overviewSection.querySelector("#inventory")).toBeNull();
+    expect(overviewSection.querySelector("#settings")).toBeNull();
+
+    expect(radarLink).toHaveAttribute("href", "#price-radar");
+    fireEvent.click(radarLink);
+    expect(window.location.hash).toBe("#price-radar");
+
+    const radarSection = screen.getByRole("region", { name: "降价雷达专区" });
+    expect(radarSection).toHaveAttribute("id", "price-radar");
+  });
+
+  it("renders the inventory section with all monitored communities", async () => {
+    await renderLoadedApp();
+
+    const inventorySection = screen.getByRole("region", { name: "房源全库专区" });
+
+    expect(
+      within(inventorySection).getByRole("heading", { name: "房源全库" }),
+    ).toBeInTheDocument();
+    expect(
+      within(inventorySection).getAllByTestId("inventory-community-card"),
+    ).toHaveLength(2);
+    expect(
+      within(inventorySection).getByRole("heading", { name: "鸣泉花园" }),
+    ).toBeInTheDocument();
+    expect(
+      within(inventorySection).getByRole("heading", { name: "万科东第" }),
+    ).toBeInTheDocument();
+    expect(within(inventorySection).getAllByText("房天下小区").length).toBeGreaterThan(0);
+  });
+
+  it("renders the settings section with dashboard maintenance guidance", async () => {
+    await renderLoadedApp();
+
+    const settingsLink = screen.getByRole("link", { name: "系统设置" });
+
+    expect(settingsLink).toHaveAttribute("href", "#settings");
+
+    fireEvent.click(settingsLink);
+
+    expect(window.location.hash).toBe("#settings");
+    expect(document.querySelectorAll("#settings")).toHaveLength(1);
+
+    const settingsSection = screen.getByRole("region", { name: "系统设置专区" });
+    const strategyCard = screen.getByText("今日策略").closest("div");
+
+    expect(settingsSection).toHaveAttribute("id", "settings");
+    expect(strategyCard).not.toBeNull();
+    expect(strategyCard).not.toHaveAttribute("id", "settings");
+
+    expect(
+      within(settingsSection).getByRole("heading", { name: "系统设置" }),
+    ).toBeInTheDocument();
+    expect(within(settingsSection).getByText("数据刷新")).toBeInTheDocument();
+    expect(
+      within(settingsSection).getByText("npm run build / npm run test:e2e"),
+    ).toBeInTheDocument();
+  });
 });
