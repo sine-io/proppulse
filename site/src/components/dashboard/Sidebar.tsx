@@ -1,8 +1,8 @@
 import {
-  BellRing,
   Building2,
+  Database,
   Home,
-  LayoutDashboard,
+  Radar,
   Settings,
 } from "lucide-react";
 
@@ -15,10 +15,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "首页", href: "#", active: true, icon: Home },
-  { label: "看板", href: "#", icon: LayoutDashboard },
-  { label: "小区池", href: "#", icon: Building2 },
-  { label: "提醒", href: "#", icon: BellRing },
-  { label: "设置", href: "#", icon: Settings },
+  { label: "重点关注小区", href: "#", icon: Building2 },
+  { label: "房源全库", href: "#", icon: Database },
+  { label: "降价雷达", href: "#", icon: Radar },
+  { label: "系统设置", href: "#", icon: Settings },
 ];
 
 export function Sidebar(): React.JSX.Element {

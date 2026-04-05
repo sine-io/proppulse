@@ -15,6 +15,13 @@ function renderApp(): void {
   render(<App />);
 }
 
+const expectedKpiTitles = [
+  "监控小区总数",
+  "在售房源总数",
+  "今日降价套数",
+  "市场均价走势",
+];
+
 describe("site App", () => {
   it("renders the housing dashboard shell", () => {
     renderApp();
@@ -24,6 +31,10 @@ describe("site App", () => {
       "aria-current",
       "page",
     );
+    expect(screen.getByRole("link", { name: "重点关注小区" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "房源全库" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "降价雷达" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "系统设置" })).toBeInTheDocument();
     expect(
       screen.getByRole("searchbox", { name: "全局搜索" }),
     ).toBeInTheDocument();
@@ -33,12 +44,21 @@ describe("site App", () => {
     expect(screen.getByText("数据最后更新于: 10分钟前")).toBeInTheDocument();
     expect(screen.queryByText("静态看板准备中")).not.toBeInTheDocument();
     expect(screen.queryByText("静态看板无法读取 JSON")).not.toBeInTheDocument();
+    expect(screen.queryByText("首页概览")).not.toBeInTheDocument();
+    expect(screen.queryByText("价格信号与高优房源监控")).not.toBeInTheDocument();
+    expect(screen.queryByText("Housing Dashboard")).not.toBeInTheDocument();
+    expect(screen.queryByText("天津核心小区降价线索总览")).not.toBeInTheDocument();
   });
 
   it("renders KPI cards and dashboard content sections", () => {
     renderApp();
 
-    expect(screen.getByText("今日降价套数")).toBeInTheDocument();
+    expectedKpiTitles.forEach((title) => {
+      expect(screen.getByText(title)).toBeInTheDocument();
+    });
+    expect(screen.queryByText("重点小区均价偏离")).not.toBeInTheDocument();
+    expect(screen.queryByText("新增预警小区")).not.toBeInTheDocument();
+    expect(screen.queryByText("在监控活跃房源")).not.toBeInTheDocument();
     expect(screen.getByText("核心小区挂牌均价走势 (近30天)")).toBeInTheDocument();
     expect(screen.getByText("单价洼地雷达")).toBeInTheDocument();
     expect(
@@ -64,6 +84,7 @@ describe("site App", () => {
   it("matches the static fixture counts for KPI cards, listings, and timeline", () => {
     renderApp();
 
+    expect(dashboardKpis.map((item) => item.title)).toEqual(expectedKpiTitles);
     expect(screen.getAllByTestId("kpi-card")).toHaveLength(
       dashboardKpis.length,
     );

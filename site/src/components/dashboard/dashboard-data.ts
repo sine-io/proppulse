@@ -37,6 +37,22 @@ export interface TimelineItem {
 
 export const dashboardKpis: DashboardKpi[] = [
   {
+    title: "监控小区总数",
+    value: "8",
+    change: "2 个新纳入",
+    hint: "重点关注清单保持静态展示，方便后续接真实数据源。",
+    tone: "neutral",
+    icon: "building-2",
+  },
+  {
+    title: "在售房源总数",
+    value: "146",
+    change: "72% 在 30 天内",
+    hint: "当前样本以主城区在售房源为主，适合继续扩展筛选维度。",
+    tone: "positive",
+    icon: "activity",
+  },
+  {
     title: "今日降价套数",
     value: "27",
     change: "+8 较昨日",
@@ -45,28 +61,12 @@ export const dashboardKpis: DashboardKpi[] = [
     icon: "badge-dollar-sign",
   },
   {
-    title: "重点小区均价偏离",
+    title: "市场均价走势",
     value: "-4.8%",
-    change: "优于板块均值",
-    hint: "价格洼地线索主要集中在梅江与奥城板块。",
-    tone: "positive",
-    icon: "building-2",
-  },
-  {
-    title: "新增预警小区",
-    value: "3",
-    change: "+1 较昨日",
-    hint: "逆势涨价与高挂牌周期叠加，需要人工复核。",
+    change: "较上周继续回落",
+    hint: "核心板块均价仍在缓慢下探，降价雷达可继续放大机会点。",
     tone: "negative",
     icon: "shield-alert",
-  },
-  {
-    title: "在监控活跃房源",
-    value: "146",
-    change: "72% 在 30 天内",
-    hint: "主城区样本活跃度维持稳定，可继续扩展榜单维度。",
-    tone: "neutral",
-    icon: "activity",
   },
 ];
 
