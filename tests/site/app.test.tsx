@@ -1,10 +1,13 @@
 /* @vitest-environment jsdom */
 
 import "@testing-library/jest-dom/vitest";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DashboardData } from "../../site/src/lib/load-json";
+
+const FROZEN_SYSTEM_TIME = new Date("2026-04-01T08:02:16.764Z");
+const TEN_MINUTES_EARLIER_ISO = "2026-04-01T07:52:16.764Z";
 
 const { mockLoadDashboardData } = vi.hoisted(() => ({
   mockLoadDashboardData: vi.fn(),
@@ -27,7 +30,7 @@ import App from "../../site/src/App";
 function makeSampleData(): DashboardData {
   const cityMarketEntry = {
     date: "2026-04-01",
-    generatedAt: "2026-04-01T07:32:04.312Z",
+    generatedAt: TEN_MINUTES_EARLIER_ISO,
     sourceMonth: "2026-02",
     secondaryHomePriceIndexMom: 99.5,
     secondaryHomePriceIndexYoy: 94,
@@ -68,7 +71,7 @@ function makeSampleData(): DashboardData {
       series: [cityMarketEntry],
     },
     latestReport: {
-      generatedAt: "2026-04-01T07:52:16.764Z",
+      generatedAt: TEN_MINUTES_EARLIER_ISO,
       weekEnding: "2026-04-01",
       cityMarket: cityMarketEntry,
       communities: {
@@ -104,7 +107,7 @@ function makeSampleData(): DashboardData {
           series: [
             {
               date: "2026-04-01",
-              generatedAt: "2026-04-01T07:32:04.312Z",
+              generatedAt: TEN_MINUTES_EARLIER_ISO,
               derivedFrom: "community-fallback",
               listingUnitPriceMedian: 23006,
               listingUnitPriceMin: 23006,
@@ -124,9 +127,11 @@ function makeSampleData(): DashboardData {
 async function renderAppWithMockedData(): Promise<void> {
   render(<App />);
 
-  await waitFor(() => {
-    expect(mockLoadDashboardData).toHaveBeenCalledTimes(1);
+  await act(async () => {
+    await Promise.resolve();
   });
+
+  expect(mockLoadDashboardData).toHaveBeenCalledTimes(1);
 
   const loadResult = mockLoadDashboardData.mock.results[0];
 
@@ -141,12 +146,15 @@ async function renderAppWithMockedData(): Promise<void> {
 
 describe("site App", () => {
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(FROZEN_SYSTEM_TIME);
     mockLoadDashboardData.mockReset();
     mockLoadDashboardData.mockResolvedValue(makeSampleData());
   });
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   it("renders the housing dashboard shell", async () => {
