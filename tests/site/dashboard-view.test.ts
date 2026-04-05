@@ -346,6 +346,35 @@ describe("dashboard-view", () => {
     });
   });
 
+  it("builds inventory community summaries from the latest dashboard data", () => {
+    const viewModel = buildDashboardViewModel(makeDashboardData(), makeRunArtifacts());
+
+    expect(viewModel.inventoryCommunities).toHaveLength(2);
+    expect(viewModel.inventoryCommunities[0]).toMatchObject({
+      name: "鸣泉花园",
+      sourceProvider: "房天下小区",
+      segmentLabel: "2居 87-90㎡",
+      latestPrice: "22,980 元/㎡",
+      listingsCount: "1 套",
+    });
+  });
+
+  it("builds settings summary cards from dashboard state", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const viewModel = buildDashboardViewModel(makeDashboardData(), makeRunArtifacts());
+
+    expect(viewModel.settingsItems.map((item) => item.title)).toEqual([
+      "数据刷新",
+      "监控覆盖",
+      "验证命令",
+    ]);
+    expect(viewModel.settingsItems[0]?.value).toBe("10分钟前");
+
+    vi.useRealTimers();
+  });
+
   it("derives timeline items for drop, alert, and refresh events", () => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
