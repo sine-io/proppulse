@@ -51,31 +51,42 @@ export function DroppedListingsTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800 bg-slate-900/60">
-              {items.map((item) => (
-                <tr
-                  key={item.id}
-                  data-testid="dropped-listing-row"
-                  className="text-slate-200"
-                >
-                  <td className="px-4 py-4">
-                    <div className="font-medium text-white">{item.community}</div>
-                    <div className="mt-1 text-xs text-slate-400">{item.note}</div>
+              {items.length > 0 ? (
+                items.map((item) => (
+                  <tr
+                    key={item.id}
+                    data-testid="dropped-listing-row"
+                    className="text-slate-200"
+                  >
+                    <td className="px-4 py-4">
+                      <div className="font-medium text-white">{item.community}</div>
+                      <div className="mt-1 text-xs text-slate-400">{item.note}</div>
+                    </td>
+                    <td className="px-4 py-4">{item.area}</td>
+                    <td className="px-4 py-4 text-slate-400 line-through">
+                      {item.originalPrice}
+                    </td>
+                    <td className="px-4 py-4 font-medium text-white">
+                      {item.currentPrice}
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className="inline-flex rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300">
+                        {item.drop}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">{item.daysOnMarket}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr data-testid="dropped-listing-empty-state">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-10 text-center text-sm text-slate-400"
+                  >
+                    今日暂无匹配到降价房源，等待下一次抓取更新。
                   </td>
-                  <td className="px-4 py-4">{item.area}</td>
-                  <td className="px-4 py-4 text-slate-400 line-through">
-                    {item.originalPrice}
-                  </td>
-                  <td className="px-4 py-4 font-medium text-white">
-                    {item.currentPrice}
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="inline-flex rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300">
-                      {item.drop}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">{item.daysOnMarket}</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

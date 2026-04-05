@@ -397,12 +397,14 @@ describe("site App", () => {
 
     const appShell = container.firstElementChild;
     const contentScrollArea = container.querySelector("main");
+    const inventorySection = screen.getByRole("region", { name: "底部区" });
 
     expect(appShell).toHaveClass("h-screen", "overflow-hidden");
     expect(contentScrollArea).toHaveClass(
       "dashboard-scroll-area",
       "overflow-y-auto",
     );
+    expect(inventorySection).toHaveClass("xl:items-start");
   });
 
   it("navigates to focused communities and renders the focused section", async () => {

@@ -126,7 +126,7 @@ export default function App(): React.JSX.Element {
               <section
                 id="inventory"
                 aria-label="底部区"
-                className="grid gap-6 scroll-mt-24 xl:grid-cols-[minmax(0,2fr)_360px]"
+                className="grid gap-6 scroll-mt-24 xl:items-start xl:grid-cols-[minmax(0,2fr)_360px]"
               >
                 <DroppedListingsTable items={droppedListings} />
                 <TimelineFeed items={timelineItems} />
