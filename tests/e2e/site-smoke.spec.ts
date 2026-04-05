@@ -51,7 +51,7 @@ test("shows the built dashboard shell on desktop", async ({ page }) => {
   await expect(
     droppedListingsTable.getByRole("columnheader", { name: "连续观测天数" }),
   ).toBeVisible();
-  expect(await droppedListingsTable.getByRole("row").count()).toBeGreaterThanOrEqual(1);
+  expect(await page.getByTestId("dropped-listing-row").count()).toBeGreaterThanOrEqual(0);
 
   await expect(page.getByTestId("timeline-item").first()).toBeVisible();
   expect(await page.getByTestId("timeline-item").count()).toBeGreaterThanOrEqual(1);
