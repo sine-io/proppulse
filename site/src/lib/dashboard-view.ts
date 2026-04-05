@@ -259,7 +259,11 @@ export function buildDashboardViewModel(
   const droppedSamples = buildDroppedListings(data, sortedRuns);
 
   const totalListings = data.communities.reduce((total, community) => {
-    const listingCount = latestRun?.communities[community.id]?.fangCommunity.listingCount;
+    const latestCommunityRun = latestRun?.communities[community.id];
+    const listingCount =
+      latestCommunityRun?.fangCommunity.status === "success"
+        ? latestCommunityRun.fangCommunity.listingCount
+        : undefined;
 
     return total + (listingCount ?? resolveFallbackListingCount(data, community.id));
   }, 0);

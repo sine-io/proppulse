@@ -263,6 +263,7 @@ function makeRunArtifacts(): RunArtifact[] {
         "wanke-dongdi": {
           fangCommunity: {
             status: "failed",
+            listingCount: 999,
             currentListingTeasers: [],
           },
           fangWeekreport: {
@@ -317,6 +318,15 @@ describe("dashboard-view", () => {
       currentPrice: "199万",
       drop: "-2.9%",
       daysOnMarket: 1,
+    });
+  });
+
+  it("falls back to latest report listing counts when the latest run failed with stale totals", () => {
+    const viewModel = buildDashboardViewModel(makeDashboardData(), makeRunArtifacts());
+
+    expect(viewModel.kpis[1]).toMatchObject({
+      title: "在售房源总数",
+      value: "93",
     });
   });
 
