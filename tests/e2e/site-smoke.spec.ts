@@ -92,11 +92,17 @@ test("navigates to inventory and settings sections from the sidebar", async ({
   await page.getByRole("link", { name: "房源全库" }).click();
   await expect(page).toHaveURL(/#inventory$/);
   await expect(
+    page.getByRole("region", { name: "房源全库专区" }),
+  ).toBeVisible();
+  await expect(
     page.getByRole("heading", { name: "房源全库" }),
   ).toBeVisible();
 
   await page.getByRole("link", { name: "系统设置" }).click();
   await expect(page).toHaveURL(/#settings$/);
+  await expect(
+    page.getByRole("region", { name: "系统设置专区" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "系统设置" }),
   ).toBeVisible();
