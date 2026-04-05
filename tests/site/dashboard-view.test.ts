@@ -25,6 +25,19 @@ function makeDashboardData(): DashboardData {
           anjukeSaleSearchUrl: null,
         },
       },
+      {
+        id: "wanke-dongdi",
+        name: "万科东第",
+        city: "天津",
+        district: "西青",
+        status: "active",
+        sourceProvider: "fang_mobile",
+        sources: {
+          fangCommunityUrl: "https://example.com/wanke/community",
+          fangWeekreportUrl: "https://example.com/wanke/weekreport",
+          anjukeSaleSearchUrl: null,
+        },
+      },
     ],
     segments: [
       {
@@ -35,6 +48,14 @@ function makeDashboardData(): DashboardData {
         areaMin: 87,
         areaMax: 90,
       },
+      {
+        communityId: "wanke-dongdi",
+        id: "wanke-2br-85-90",
+        label: "2居 85-90㎡",
+        rooms: 2,
+        areaMin: 85,
+        areaMax: 90,
+      },
     ],
     primarySegmentsByCommunityId: {
       "mingquan-huayuan": {
@@ -43,6 +64,14 @@ function makeDashboardData(): DashboardData {
         label: "2居 87-90㎡",
         rooms: 2,
         areaMin: 87,
+        areaMax: 90,
+      },
+      "wanke-dongdi": {
+        communityId: "wanke-dongdi",
+        id: "wanke-2br-85-90",
+        label: "2居 85-90㎡",
+        rooms: 2,
+        areaMin: 85,
         areaMax: 90,
       },
     },
@@ -88,6 +117,23 @@ function makeDashboardData(): DashboardData {
             },
           },
         },
+        "wanke-dongdi": {
+          name: "万科东第",
+          district: "西青",
+          segments: {
+            "wanke-2br-85-90": {
+              label: "2居 85-90㎡",
+              verdict: "样本不足",
+              latest: {
+                listingUnitPriceMedian: 24500,
+                listingUnitPriceMin: 24300,
+                listingsCount: 3,
+                suspectedDealCount: 12,
+                manualDealCount: 0,
+              },
+            },
+          },
+        },
       },
     },
     communitySeries: {
@@ -109,6 +155,31 @@ function makeDashboardData(): DashboardData {
               listingUnitPriceMin: 22980,
               listingsCount: 1,
               suspectedDealCount: 177,
+              manualDealCount: 0,
+              manualDealUnitPriceMedian: null,
+              manualLatestSampleAt: null,
+            },
+          ],
+        },
+      },
+      "wanke-dongdi": {
+        "wanke-2br-85-90": {
+          communityId: "wanke-dongdi",
+          communityName: "万科东第",
+          segmentId: "wanke-2br-85-90",
+          segmentLabel: "2居 85-90㎡",
+          rooms: 2,
+          areaMin: 85,
+          areaMax: 90,
+          series: [
+            {
+              date: "2026-04-04",
+              generatedAt: "2026-04-04T03:43:21.849Z",
+              derivedFrom: "community-fallback",
+              listingUnitPriceMedian: 24500,
+              listingUnitPriceMin: 24300,
+              listingsCount: 3,
+              suspectedDealCount: 12,
               manualDealCount: 0,
               manualDealUnitPriceMedian: null,
               manualLatestSampleAt: null,
@@ -145,6 +216,25 @@ function makeRunArtifacts(): RunArtifact[] {
             pricePoints: [{ label: "4月", priceYuanPerSqm: 22980 }],
           },
         },
+        "wanke-dongdi": {
+          fangCommunity: {
+            status: "success",
+            listingCount: 3,
+            currentListingTeasers: [
+              {
+                title: "万科东第 2室1厅 南北通透",
+                roomCount: 2,
+                areaSqm: 87.6,
+                totalPriceWan: 214,
+                unitPriceYuanPerSqm: 24429,
+              },
+            ],
+          },
+          fangWeekreport: {
+            status: "success",
+            pricePoints: [{ label: "4月", priceYuanPerSqm: 24500 }],
+          },
+        },
       },
     },
     {
@@ -168,6 +258,16 @@ function makeRunArtifacts(): RunArtifact[] {
           fangWeekreport: {
             status: "success",
             pricePoints: [{ label: "4月", priceYuanPerSqm: 22980 }],
+          },
+        },
+        "wanke-dongdi": {
+          fangCommunity: {
+            status: "failed",
+            currentListingTeasers: [],
+          },
+          fangWeekreport: {
+            status: "skipped",
+            pricePoints: [{ label: "4月", priceYuanPerSqm: 24500 }],
           },
         },
       },
@@ -197,8 +297,8 @@ describe("dashboard-view", () => {
       "今日降价套数",
       "市场均价走势",
     ]);
-    expect(viewModel.kpis[0]).toMatchObject({ value: "1" });
-    expect(viewModel.kpis[1]).toMatchObject({ value: "90" });
+    expect(viewModel.kpis[0]).toMatchObject({ value: "2" });
+    expect(viewModel.kpis[1]).toMatchObject({ value: "93" });
     expect(viewModel.kpis[2]).toMatchObject({ value: "1" });
     expect(viewModel.kpis[3]).toMatchObject({ value: "-0.5%" });
     expect(viewModel.lastUpdatedLabel).toBe("10分钟前");
@@ -220,23 +320,33 @@ describe("dashboard-view", () => {
     });
   });
 
-  it("derives timeline items for drops and refresh events", () => {
+  it("derives timeline items for drop, alert, and refresh events", () => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
 
     const viewModel = buildDashboardViewModel(makeDashboardData(), makeRunArtifacts());
 
-    expect(viewModel.timelineItems.length).toBeGreaterThan(0);
-    expect(viewModel.timelineItems[0]).toMatchObject({
+    const dropItem = viewModel.timelineItems.find((item) => item.id.startsWith("drop:"));
+    const alertItem = viewModel.timelineItems.find((item) =>
+      item.id.startsWith("alert:"),
+    );
+    const refreshItem = viewModel.timelineItems.find((item) =>
+      item.id.startsWith("refresh:"),
+    );
+
+    expect(dropItem).toMatchObject({
       tone: "positive",
     });
-    expect(viewModel.timelineItems.some((item) => item.title.includes("降价"))).toBe(true);
-    expect(
-      viewModel.timelineItems.some(
-        (item) =>
-          item.tone === "neutral" && item.title.includes("监控样本已刷新完成"),
-      ),
-    ).toBe(true);
+    expect(dropItem?.title).toContain("降价");
+    expect(alertItem).toMatchObject({
+      tone: "negative",
+      title: "万科东第 数据抓取异常",
+    });
+    expect(alertItem?.description).toContain("fangCommunity / fangWeekreport");
+    expect(refreshItem).toMatchObject({
+      tone: "neutral",
+      title: "最新监控样本已刷新完成",
+    });
 
     vi.useRealTimers();
   });
