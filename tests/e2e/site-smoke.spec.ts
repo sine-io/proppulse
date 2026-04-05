@@ -132,6 +132,9 @@ test("navigates to overview and price radar sections from the sidebar", async ({
   ).toBeVisible();
   await expect(page.locator("#overview #price-radar")).toHaveCount(0);
   await expect(page.locator("#overview #focus-communities")).toHaveCount(0);
+  await expect(page.locator("#overview #inventory")).toHaveCount(0);
+  await expect(page.locator("#overview #settings")).toHaveCount(0);
+  await expect(page.locator('#overview [aria-label="底部区"]')).toHaveCount(0);
 
   await page.getByRole("link", { name: "降价雷达" }).click();
   const radarSection = page.locator("#price-radar");
