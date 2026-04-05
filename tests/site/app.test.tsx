@@ -465,6 +465,12 @@ describe("site App", () => {
     expect(
       within(inventorySection).getAllByTestId("inventory-community-card"),
     ).toHaveLength(2);
+    expect(
+      within(inventorySection).getByRole("heading", { name: "鸣泉花园" }),
+    ).toBeInTheDocument();
+    expect(
+      within(inventorySection).getByRole("heading", { name: "万科东第" }),
+    ).toBeInTheDocument();
     expect(within(inventorySection).getAllByText("房天下小区").length).toBeGreaterThan(0);
   });
 });
