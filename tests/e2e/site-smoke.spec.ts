@@ -68,6 +68,20 @@ test("shows the built dashboard shell on desktop", async ({ page }) => {
   await expect(page.getByText("Live Feed")).toBeVisible();
 });
 
+test("uses a dark document background outside the app shell", async ({ page }) => {
+  await page.goto("/");
+
+  const backgroundColors = await page.evaluate(() => ({
+    html: getComputedStyle(document.documentElement).backgroundColor,
+    body: getComputedStyle(document.body).backgroundColor,
+    root: getComputedStyle(document.getElementById("root")!).backgroundColor,
+  }));
+
+  expect(backgroundColors.html).toBe("rgb(2, 6, 23)");
+  expect(backgroundColors.body).toBe("rgb(2, 6, 23)");
+  expect(backgroundColors.root).toBe("rgb(2, 6, 23)");
+});
+
 test("navigates to the focused communities section from the sidebar", async ({
   page,
 }) => {
