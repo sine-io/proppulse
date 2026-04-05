@@ -51,6 +51,16 @@ test("shows the built dashboard shell on desktop", async ({ page }) => {
   await expect(
     droppedListingsTable.getByRole("columnheader", { name: "连续观测天数" }),
   ).toBeVisible();
+  const columnHeaders = droppedListingsTable.getByRole("columnheader");
+  await expect(columnHeaders).toHaveCount(6);
+  await expect(columnHeaders).toHaveText([
+    "小区",
+    "面积",
+    "原价",
+    "现价",
+    "降幅",
+    "连续观测天数",
+  ]);
   expect(await page.getByTestId("dropped-listing-row").count()).toBeGreaterThanOrEqual(0);
 
   await expect(page.getByTestId("timeline-item").first()).toBeVisible();
