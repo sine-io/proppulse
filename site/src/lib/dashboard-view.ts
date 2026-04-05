@@ -5,7 +5,7 @@ import type {
   DroppedListing,
   TimelineItem,
   TimelineTone,
-} from "../components/dashboard/dashboard-data";
+} from "../components/dashboard/dashboard-types";
 
 type SourceStatus = "success" | "failed" | "skipped";
 

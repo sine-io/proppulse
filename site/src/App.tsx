@@ -14,18 +14,19 @@ import { KpiCard } from "./components/dashboard/KpiCard";
 import { Sidebar } from "./components/dashboard/Sidebar";
 import { TimelineFeed } from "./components/dashboard/TimelineFeed";
 import { TopHeader } from "./components/dashboard/TopHeader";
+import type { DashboardIconKey } from "./components/dashboard/dashboard-types";
 import {
   buildDashboardViewModel,
   type DashboardViewModel,
 } from "./lib/dashboard-view";
 import { loadDashboardData, loadRecentRunArtifacts } from "./lib/load-json";
 
-const iconMap = {
+const iconMap: Record<DashboardIconKey, typeof TrendingDown> = {
   "badge-dollar-sign": BadgeDollarSign,
   "building-2": Building2,
   activity: Activity,
   "shield-alert": ShieldAlert,
-} satisfies Record<string, typeof TrendingDown>;
+};
 
 export default function App(): React.JSX.Element {
   const [viewModel, setViewModel] = useState<DashboardViewModel | null>(null);

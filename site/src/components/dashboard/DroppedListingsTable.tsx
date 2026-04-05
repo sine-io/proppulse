@@ -1,6 +1,6 @@
 import { ArrowDownRight } from "lucide-react";
 
-import type { DroppedListing } from "./dashboard-data";
+import type { DroppedListing } from "./dashboard-types";
 
 interface DroppedListingsTableProps {
   items: DroppedListing[];
