@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-07T04:06:40.867Z",
+  "generatedAt": "2026-04-07T14:50:10.301Z",
   "sources": {
     "stats-gov": {
       "status": "failed"
@@ -25,18 +25,18 @@
             "unitPriceYuanPerSqm": 22506
           },
           {
-            "title": "鸣泉花园精装三室临梅江公园小区临湖",
-            "roomCount": 3,
-            "areaSqm": 132.77,
-            "totalPriceWan": 280,
-            "unitPriceYuanPerSqm": 21090
-          },
-          {
             "title": "津门湖鸣泉花园,满五年唯一,有车位",
             "roomCount": 4,
             "areaSqm": 179.5,
             "totalPriceWan": 320,
             "unitPriceYuanPerSqm": 17828
+          },
+          {
+            "title": "鸣泉花园精装三室临梅江公园小区临湖",
+            "roomCount": 3,
+            "areaSqm": 132.77,
+            "totalPriceWan": 280,
+            "unitPriceYuanPerSqm": 21090
           }
         ]
       },
@@ -72,11 +72,11 @@
         ],
         "currentListingTeasers": [
           {
-            "title": "此房满五年,精装修。通透户型,好楼层,可观湖。",
+            "title": "津门湖柏溪花园小区中间位置,西缺洋房,可观湖",
             "roomCount": 3,
-            "areaSqm": 130.23,
-            "totalPriceWan": 350,
-            "unitPriceYuanPerSqm": 26876
+            "areaSqm": 155,
+            "totalPriceWan": 580,
+            "unitPriceYuanPerSqm": 37419
           },
           {
             "title": "采光棒能观湖新装修3个月拎包入住给孩子换房出售",
@@ -86,11 +86,11 @@
             "unitPriceYuanPerSqm": 26112
           },
           {
-            "title": "柏溪花园满五唯一采光好观湖",
+            "title": "津门湖柏溪花园 精装大三室 方便看房诚信出售",
             "roomCount": 3,
-            "areaSqm": 140.03,
-            "totalPriceWan": 268,
-            "unitPriceYuanPerSqm": 19139
+            "areaSqm": 155.26,
+            "totalPriceWan": 430,
+            "unitPriceYuanPerSqm": 27695
           }
         ]
       },
