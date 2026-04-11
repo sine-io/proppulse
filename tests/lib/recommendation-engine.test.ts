@@ -250,6 +250,8 @@ describe("lib/recommendation-engine buildRecommendation", () => {
       "boxi-huayuan",
       "wanke-dongdi",
     ]);
+    expect(result.basketRanking[0]?.reasoning).toContain("强信号");
+    expect(result.basketRanking[0]?.reasoning).toContain("走强");
   });
 
   it("changes recommendation thresholds by decision window", () => {
@@ -286,5 +288,29 @@ describe("lib/recommendation-engine buildRecommendation", () => {
 
     expect(fastWindowResult.action).toBe("can_view");
     expect(slowWindowResult.action).toBe("continue_wait");
+  });
+
+  it("uses human-readable Chinese counterevidence copy instead of raw enum labels", () => {
+    const result = buildRecommendation(
+      makeInput({
+        targetBasket: [
+          {
+            communityId: "mingquan-huayuan",
+            displayName: "鸣泉花园",
+            relativeSpreadPct: -4.5,
+            listingCount: 6,
+            signalStrength: "strong",
+            momentum: "improving",
+          },
+        ],
+      }),
+    );
+
+    expect(result.explanation.strongestCounterevidence[0]?.summary).toContain(
+      "走势仍在走强",
+    );
+    expect(result.explanation.strongestCounterevidence[0]?.summary).not.toContain(
+      "improving",
+    );
   });
 });

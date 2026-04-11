@@ -30,6 +30,34 @@ function momentumScore(momentum: RecommendationTargetInput["momentum"]): number 
   }
 }
 
+function formatMomentumLabel(
+  momentum: RecommendationTargetInput["momentum"],
+): string {
+  switch (momentum) {
+    case "improving":
+      return "走强";
+    case "flat":
+      return "走平";
+    case "weakening":
+      return "走弱";
+  }
+}
+
+function formatSignalStrengthLabel(
+  signalStrength: RecommendationTargetInput["signalStrength"],
+): string {
+  switch (signalStrength) {
+    case "strong":
+      return "强信号";
+    case "weak":
+      return "弱信号";
+  }
+}
+
+function formatSignedPercent(value: number): string {
+  return `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
+}
+
 function sortTargetBasket(targetBasket: RecommendationTargetInput[]): TargetBasketRankingEntry[] {
   return [...targetBasket]
     .sort((left, right) => {
@@ -56,7 +84,7 @@ function sortTargetBasket(targetBasket: RecommendationTargetInput[]): TargetBask
       reasoning:
         entry.relativeSpreadPct === null
           ? "缺少可用的相对价差信号"
-          : `相对价差 ${entry.relativeSpreadPct.toFixed(1)}%，${entry.signalStrength} 证据，动能 ${entry.momentum}`,
+          : `相对价差 ${formatSignedPercent(entry.relativeSpreadPct)}，${formatSignalStrengthLabel(entry.signalStrength)}，动能 ${formatMomentumLabel(entry.momentum)}`,
     }));
 }
 
@@ -163,7 +191,11 @@ function buildCounterevidence(
         input.marketContext.secondaryHomePriceIndexMom !== null &&
         input.marketContext.secondaryHomePriceIndexMom > 100
           ? "城市层面月度读数仍偏强，说明买方窗口未完全打开。"
-          : `目标小区当前动能为 ${topTarget.momentum}，需要警惕走势再次转弱。`,
+          : topTarget.momentum === "improving"
+            ? "目标小区当前走势仍在走强，说明价格可能还有支撑。"
+            : topTarget.momentum === "flat"
+              ? "目标小区当前走势偏平，说明窗口可能还需要继续观察。"
+              : "目标小区当前走势正在转弱，说明短期样本仍需继续确认。",
     },
   ];
 }
