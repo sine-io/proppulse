@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-14T14:57:37.003Z",
+  "generatedAt": "2026-04-15T04:18:09.088Z",
   "sources": {
     "stats-gov": {
       "status": "failed"
@@ -14,7 +14,7 @@
         "recentDealHints": [
           "西青热搜小区榜第60名",
           "关注量超过同城98%的楼盘",
-          "二手房历史成交(177)"
+          "二手房历史成交(178)"
         ],
         "currentListingTeasers": [
           {
@@ -32,11 +32,11 @@
             "unitPriceYuanPerSqm": 17828
           },
           {
-            "title": "鸣泉花园全明通透三居低楼层无遮挡观湖景",
-            "roomCount": 3,
-            "areaSqm": 146.81,
-            "totalPriceWan": 358,
-            "unitPriceYuanPerSqm": 24386
+            "title": "鸣泉花园精装全阳两室视野开阔诚意出售看房方便",
+            "roomCount": 2,
+            "areaSqm": 88.44,
+            "totalPriceWan": 182,
+            "unitPriceYuanPerSqm": 20579
           }
         ]
       },
@@ -72,25 +72,25 @@
         ],
         "currentListingTeasers": [
           {
-            "title": "津门湖柏溪园精装三室采光好靠近花园",
+            "title": "津门湖柏溪花园三居室 户型方正 采光好 视野开阔",
             "roomCount": 3,
-            "areaSqm": 155.2,
-            "totalPriceWan": 500,
-            "unitPriceYuanPerSqm": 32216
+            "areaSqm": 140.03,
+            "totalPriceWan": 383,
+            "unitPriceYuanPerSqm": 27352
           },
           {
-            "title": "柏溪花园,洋房带电梯,临湖,凤凰层",
-            "roomCount": 3,
-            "areaSqm": 155.64,
-            "totalPriceWan": 438,
-            "unitPriceYuanPerSqm": 28142
-          },
-          {
-            "title": "业主诚意出售可观湖景明厨明卫有意咨询",
+            "title": "柏溪精装两室好楼层近地铁随时可看",
             "roomCount": 2,
-            "areaSqm": 97.93,
-            "totalPriceWan": 246,
-            "unitPriceYuanPerSqm": 25120
+            "areaSqm": 103.18,
+            "totalPriceWan": 268,
+            "unitPriceYuanPerSqm": 25975
+          },
+          {
+            "title": "柏溪园 通透三室 采光非常不错",
+            "roomCount": 3,
+            "areaSqm": 136,
+            "totalPriceWan": 470,
+            "unitPriceYuanPerSqm": 34559
           }
         ]
       },
