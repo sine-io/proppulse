@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-18T14:06:29.840Z",
+  "generatedAt": "2026-04-19T04:24:07.477Z",
   "sources": {
     "stats-gov": {
       "status": "failed"
@@ -12,7 +12,7 @@
         "referenceUnitPrice": 22981,
         "listingCount": 87,
         "recentDealHints": [
-          "西青人气小区榜第99名",
+          "西青热搜小区榜第60名",
           "关注量超过同城98%的楼盘",
           "二手房历史成交(178)"
         ],
@@ -32,11 +32,11 @@
             "unitPriceYuanPerSqm": 17828
           },
           {
-            "title": "津门湖鸣泉 业主二次装修 可拎包入住 有钥匙诚售",
-            "roomCount": 2,
-            "areaSqm": 87.33,
-            "totalPriceWan": 200,
-            "unitPriceYuanPerSqm": 22902
+            "title": "南北通透,价格美丽,精装修,采光很好",
+            "roomCount": 3,
+            "areaSqm": 137.37,
+            "totalPriceWan": 275,
+            "unitPriceYuanPerSqm": 20019
           }
         ]
       },
@@ -72,25 +72,25 @@
         ],
         "currentListingTeasers": [
           {
-            "title": "梅江观鹭柏溪花园 精装大两室,方便出租 ,业主诚心售",
-            "roomCount": 2,
-            "areaSqm": 104,
-            "totalPriceWan": 380,
-            "unitPriceYuanPerSqm": 36538
+            "title": "梅江商圈柏溪花园3室2厅",
+            "roomCount": 3,
+            "areaSqm": 156,
+            "totalPriceWan": 550,
+            "unitPriceYuanPerSqm": 35256
           },
           {
-            "title": "津门湖柏溪花园小高层温馨两居室业主诚意出售",
-            "roomCount": 2,
-            "areaSqm": 88.92,
-            "totalPriceWan": 228,
-            "unitPriceYuanPerSqm": 25642
+            "title": "此房满五年,精装修。通透户型,好楼层,可观湖。",
+            "roomCount": 3,
+            "areaSqm": 130.23,
+            "totalPriceWan": 350,
+            "unitPriceYuanPerSqm": 26876
           },
           {
-            "title": "富力津门湖柏溪花园私产精装",
+            "title": "柏溪花园 新出精装两室 方便看房 适合居住",
             "roomCount": 2,
             "areaSqm": 88.92,
-            "totalPriceWan": 228,
-            "unitPriceYuanPerSqm": 25641
+            "totalPriceWan": 278,
+            "unitPriceYuanPerSqm": 31264
           }
         ]
       },
