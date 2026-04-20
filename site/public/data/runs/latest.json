@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-19T14:05:51.722Z",
+  "generatedAt": "2026-04-20T04:30:58.670Z",
   "sources": {
     "stats-gov": {
       "status": "failed"
@@ -12,7 +12,7 @@
         "referenceUnitPrice": 22981,
         "listingCount": 87,
         "recentDealHints": [
-          "西青热搜小区榜第60名",
+          "西青人气小区榜第100名",
           "关注量超过同城98%的楼盘",
           "二手房历史成交(178)"
         ],
@@ -32,11 +32,11 @@
             "unitPriceYuanPerSqm": 17828
           },
           {
-            "title": "明泉花园,正规三室,通透,面积适中,可观湖景。",
+            "title": "鸣泉花园小高层,小区中间位置,不临街不把边 好楼层",
             "roomCount": 3,
-            "areaSqm": 147,
-            "totalPriceWan": 460,
-            "unitPriceYuanPerSqm": 31293
+            "areaSqm": 135.42,
+            "totalPriceWan": 398,
+            "unitPriceYuanPerSqm": 29391
           }
         ]
       },
@@ -64,7 +64,7 @@
       "fangCommunity": {
         "status": "success",
         "referenceUnitPrice": 25453,
-        "listingCount": 60,
+        "listingCount": 59,
         "recentDealHints": [
           "西青热搜小区榜第37名",
           "关注量超过同城98%的楼盘",
@@ -72,25 +72,25 @@
         ],
         "currentListingTeasers": [
           {
-            "title": "津门湖柏溪花园 精装大三室 方便看房诚信出售",
-            "roomCount": 3,
-            "areaSqm": 155.26,
-            "totalPriceWan": 430,
-            "unitPriceYuanPerSqm": 27695
-          },
-          {
-            "title": "满五没尾款中间楼层能观湖景诚意出售",
+            "title": "梅江观鹭柏溪花园 精装大两室,方便出租 ,业主诚心售",
             "roomCount": 2,
-            "areaSqm": 103.18,
-            "totalPriceWan": 206,
-            "unitPriceYuanPerSqm": 19966
+            "areaSqm": 104,
+            "totalPriceWan": 380,
+            "unitPriceYuanPerSqm": 36538
           },
           {
-            "title": "津门湖柏溪花园三室将近30万全新装修采光好拎包住",
+            "title": "梅江商圈柏溪花园3室2厅",
             "roomCount": 3,
-            "areaSqm": 134.7,
-            "totalPriceWan": 355,
-            "unitPriceYuanPerSqm": 26355
+            "areaSqm": 150.89,
+            "totalPriceWan": 528,
+            "unitPriceYuanPerSqm": 34992
+          },
+          {
+            "title": "正南看湖,景观视野开阔小高层,业主诚心卖",
+            "roomCount": 3,
+            "areaSqm": 163.65,
+            "totalPriceWan": 570,
+            "unitPriceYuanPerSqm": 34831
           }
         ]
       },
