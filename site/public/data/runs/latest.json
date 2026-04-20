@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-20T04:30:58.670Z",
+  "generatedAt": "2026-04-20T14:59:39.093Z",
   "sources": {
     "stats-gov": {
       "status": "failed"
@@ -32,11 +32,11 @@
             "unitPriceYuanPerSqm": 17828
           },
           {
-            "title": "鸣泉花园小高层,小区中间位置,不临街不把边 好楼层",
+            "title": "津门湖鸣泉花园小高层+全明三居+人车分流+直通地库",
             "roomCount": 3,
-            "areaSqm": 135.42,
-            "totalPriceWan": 398,
-            "unitPriceYuanPerSqm": 29391
+            "areaSqm": 114.4,
+            "totalPriceWan": 240,
+            "unitPriceYuanPerSqm": 20980
           }
         ]
       },
@@ -72,25 +72,25 @@
         ],
         "currentListingTeasers": [
           {
-            "title": "梅江观鹭柏溪花园 精装大两室,方便出租 ,业主诚心售",
+            "title": "梅江临湖景观房业主诚心出售先到先得",
+            "roomCount": 3,
+            "areaSqm": 156.11,
+            "totalPriceWan": 420,
+            "unitPriceYuanPerSqm": 26905
+          },
+          {
+            "title": "临湖观景三室湖景相伴演绎美好生活楼层高视野棒",
+            "roomCount": 3,
+            "areaSqm": 155.26,
+            "totalPriceWan": 487,
+            "unitPriceYuanPerSqm": 31367
+          },
+          {
+            "title": "梅江商圈柏溪花园2室2厅",
             "roomCount": 2,
-            "areaSqm": 104,
-            "totalPriceWan": 380,
-            "unitPriceYuanPerSqm": 36538
-          },
-          {
-            "title": "梅江商圈柏溪花园3室2厅",
-            "roomCount": 3,
-            "areaSqm": 150.89,
-            "totalPriceWan": 528,
-            "unitPriceYuanPerSqm": 34992
-          },
-          {
-            "title": "正南看湖,景观视野开阔小高层,业主诚心卖",
-            "roomCount": 3,
-            "areaSqm": 163.65,
-            "totalPriceWan": 570,
-            "unitPriceYuanPerSqm": 34831
+            "areaSqm": 89.92,
+            "totalPriceWan": 265,
+            "unitPriceYuanPerSqm": 29471
           }
         ]
       },
