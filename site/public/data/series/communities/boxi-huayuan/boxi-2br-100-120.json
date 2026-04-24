@@ -297,11 +297,11 @@
     },
     {
       "date": "2026-04-24",
-      "generatedAt": "2026-04-24T04:27:34.050Z",
+      "generatedAt": "2026-04-24T14:50:15.137Z",
       "derivedFrom": "community-fallback",
       "listingUnitPriceMedian": 25453,
       "listingUnitPriceMin": 25453,
-      "listingsCount": 0,
+      "listingsCount": 1,
       "suspectedDealCount": 123,
       "manualDealCount": 0,
       "manualDealUnitPriceMedian": null,
