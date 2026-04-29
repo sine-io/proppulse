@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-28T15:45:29.219Z",
+  "generatedAt": "2026-04-29T04:40:22.369Z",
   "sources": {
     "stats-gov": {
       "status": "failed"
@@ -32,11 +32,11 @@
             "unitPriceYuanPerSqm": 17828
           },
           {
-            "title": "富力津门湖鸣泉花园2室2厅南",
-            "roomCount": 2,
-            "areaSqm": 87.31,
-            "totalPriceWan": 155,
-            "unitPriceYuanPerSqm": 17753
+            "title": "津门湖通透小三居居住温馨舒适景观棒",
+            "roomCount": 3,
+            "areaSqm": 114.4,
+            "totalPriceWan": 258,
+            "unitPriceYuanPerSqm": 22553
           }
         ]
       },
@@ -72,25 +72,25 @@
         ],
         "currentListingTeasers": [
           {
-            "title": "梅江商圈柏溪花园3室2厅",
+            "title": "柏溪花园满五唯一采光好观湖",
             "roomCount": 3,
-            "areaSqm": 150.89,
-            "totalPriceWan": 528,
-            "unitPriceYuanPerSqm": 34992
+            "areaSqm": 140.03,
+            "totalPriceWan": 268,
+            "unitPriceYuanPerSqm": 19139
           },
           {
             "title": "富力津门湖柏溪花园3室2厅南北",
             "roomCount": 3,
-            "areaSqm": 135.3,
-            "totalPriceWan": 350,
-            "unitPriceYuanPerSqm": 25869
+            "areaSqm": 135.55,
+            "totalPriceWan": 338,
+            "unitPriceYuanPerSqm": 24936
           },
           {
-            "title": "观景好房,视野棒,精装两室带阳台!",
-            "roomCount": 2,
-            "areaSqm": 104,
-            "totalPriceWan": 240,
-            "unitPriceYuanPerSqm": 23077
+            "title": "津门湖柏溪园精装三室采光好靠近花园",
+            "roomCount": 3,
+            "areaSqm": 155.2,
+            "totalPriceWan": 500,
+            "unitPriceYuanPerSqm": 32216
           }
         ]
       },
