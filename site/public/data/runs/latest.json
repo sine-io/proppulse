@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T04:44:22.880Z",
+  "generatedAt": "2026-04-30T15:24:08.851Z",
   "sources": {
     "stats-gov": {
       "status": "failed"
@@ -32,11 +32,11 @@
             "unitPriceYuanPerSqm": 17828
           },
           {
-            "title": "津门湖小高,精装修,看房方便,业主诚心出售",
+            "title": "津门湖鸣泉花园小高层+全明三居+人车分流+直通地库",
             "roomCount": 3,
             "areaSqm": 114.4,
-            "totalPriceWan": 255,
-            "unitPriceYuanPerSqm": 22291
+            "totalPriceWan": 240,
+            "unitPriceYuanPerSqm": 20980
           }
         ]
       },
@@ -72,25 +72,25 @@
         ],
         "currentListingTeasers": [
           {
-            "title": "柏溪洋房好楼层视野号采光好",
+            "title": "津门湖柏溪花园三居室 户型方正 采光好 视野开阔",
             "roomCount": 3,
-            "areaSqm": 135.3,
-            "totalPriceWan": 308,
-            "unitPriceYuanPerSqm": 22765
+            "areaSqm": 140.03,
+            "totalPriceWan": 383,
+            "unitPriceYuanPerSqm": 27352
           },
           {
-            "title": "临湖观景三室湖景相伴演绎美好生活楼层高视野棒",
+            "title": "富力津门湖柏溪花园3室2厅南北",
             "roomCount": 3,
-            "areaSqm": 155.26,
-            "totalPriceWan": 487,
-            "unitPriceYuanPerSqm": 31367
+            "areaSqm": 134.7,
+            "totalPriceWan": 310,
+            "unitPriceYuanPerSqm": 23015
           },
           {
-            "title": "正南看湖,景观视野开阔小高层,业主诚心卖",
+            "title": "柏溪花园满五唯一采光好观湖",
             "roomCount": 3,
-            "areaSqm": 163.65,
-            "totalPriceWan": 570,
-            "unitPriceYuanPerSqm": 34831
+            "areaSqm": 140.03,
+            "totalPriceWan": 268,
+            "unitPriceYuanPerSqm": 19139
           }
         ]
       },
