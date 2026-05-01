@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-01T04:58:18.556Z",
+  "generatedAt": "2026-05-01T14:34:01.553Z",
   "sources": {
     "stats-gov": {
       "status": "failed"
@@ -32,11 +32,11 @@
             "unitPriceYuanPerSqm": 17828
           },
           {
-            "title": "西青区李七庄街鸣泉花园2室2厅",
+            "title": "西青 梅江商圈鸣泉花园2室1厅",
             "roomCount": 2,
-            "areaSqm": 146.11,
-            "totalPriceWan": 420,
-            "unitPriceYuanPerSqm": 28745
+            "areaSqm": 88.51,
+            "totalPriceWan": 286,
+            "unitPriceYuanPerSqm": 32313
           }
         ]
       },
@@ -72,25 +72,25 @@
         ],
         "currentListingTeasers": [
           {
-            "title": "柏溪花园,洋房带电梯,临湖,凤凰层",
-            "roomCount": 3,
-            "areaSqm": 155.64,
-            "totalPriceWan": 438,
-            "unitPriceYuanPerSqm": 28142
+            "title": "观景好房,视野棒,精装两室带阳台!",
+            "roomCount": 2,
+            "areaSqm": 104,
+            "totalPriceWan": 240,
+            "unitPriceYuanPerSqm": 23077
           },
           {
-            "title": "津门湖柏溪花园视野开阔,临湖一=小区中间位置",
-            "roomCount": 3,
-            "areaSqm": 156,
-            "totalPriceWan": 480,
-            "unitPriceYuanPerSqm": 30769
+            "title": "李七庄街 · 柏溪花园 · 2室 · 1厅",
+            "roomCount": 2,
+            "areaSqm": 88.94,
+            "totalPriceWan": 245,
+            "unitPriceYuanPerSqm": 27547
           },
           {
-            "title": "津门湖柏溪花园 精装大三室 方便看房诚信出售",
-            "roomCount": 3,
-            "areaSqm": 155.26,
-            "totalPriceWan": 430,
-            "unitPriceYuanPerSqm": 27695
+            "title": "柏溪花园新登记两室有钥匙随时能看诚意出售",
+            "roomCount": 2,
+            "areaSqm": 100.54,
+            "totalPriceWan": 220,
+            "unitPriceYuanPerSqm": 21882
           }
         ]
       },
