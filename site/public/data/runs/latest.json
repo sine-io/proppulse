@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-30T15:24:08.851Z",
+  "generatedAt": "2026-05-01T04:58:18.556Z",
   "sources": {
     "stats-gov": {
       "status": "failed"
@@ -32,16 +32,16 @@
             "unitPriceYuanPerSqm": 17828
           },
           {
-            "title": "津门湖鸣泉花园小高层+全明三居+人车分流+直通地库",
-            "roomCount": 3,
-            "areaSqm": 114.4,
-            "totalPriceWan": 240,
-            "unitPriceYuanPerSqm": 20980
+            "title": "西青区李七庄街鸣泉花园2室2厅",
+            "roomCount": 2,
+            "areaSqm": 146.11,
+            "totalPriceWan": 420,
+            "unitPriceYuanPerSqm": 28745
           }
         ]
       },
       "fangWeekreport": {
-        "status": "success",
+        "status": "failed",
         "pricePoints": [
           {
             "label": "4月",
@@ -72,30 +72,30 @@
         ],
         "currentListingTeasers": [
           {
-            "title": "津门湖柏溪花园三居室 户型方正 采光好 视野开阔",
+            "title": "柏溪花园,洋房带电梯,临湖,凤凰层",
             "roomCount": 3,
-            "areaSqm": 140.03,
-            "totalPriceWan": 383,
-            "unitPriceYuanPerSqm": 27352
+            "areaSqm": 155.64,
+            "totalPriceWan": 438,
+            "unitPriceYuanPerSqm": 28142
           },
           {
-            "title": "富力津门湖柏溪花园3室2厅南北",
+            "title": "津门湖柏溪花园视野开阔,临湖一=小区中间位置",
             "roomCount": 3,
-            "areaSqm": 134.7,
-            "totalPriceWan": 310,
-            "unitPriceYuanPerSqm": 23015
+            "areaSqm": 156,
+            "totalPriceWan": 480,
+            "unitPriceYuanPerSqm": 30769
           },
           {
-            "title": "柏溪花园满五唯一采光好观湖",
+            "title": "津门湖柏溪花园 精装大三室 方便看房诚信出售",
             "roomCount": 3,
-            "areaSqm": 140.03,
-            "totalPriceWan": 268,
-            "unitPriceYuanPerSqm": 19139
+            "areaSqm": 155.26,
+            "totalPriceWan": 430,
+            "unitPriceYuanPerSqm": 27695
           }
         ]
       },
       "fangWeekreport": {
-        "status": "success",
+        "status": "failed",
         "pricePoints": [
           {
             "label": "4月",
